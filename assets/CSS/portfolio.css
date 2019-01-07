@@ -1,0 +1,69 @@
+
+ #logo {
+  width: 100px;
+  max-height: 100px;
+};
+
+tr {
+  height: 100px;
+};
+
+td, th, table {
+  text-align: center;
+}; 
+
+h1, h2, h3 {
+  font-family: 'Pacifico', cursive;
+  /* font-family: 'Bungee Inline', cursive; */
+  font-size: 77;
+}
+
+.nav-left {
+  position: fixed;
+  background: #007599;
+  color: white;
+  top: 0;
+  left: 10%;
+  font-family: 'Poppins', sans-serif;
+  font-size: 18;
+  padding: 20px;
+}
+
+
+.nav-right {
+  position: fixed;
+  background: #dfdfdf;
+  color: black;
+  top: 0;
+  right: 10%;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14;
+}
+
+.nav {
+  background: #dfdfdf;
+}
+
+.work-sans {
+font-family: 'Work Sans', sans-serif;
+};
+
+.luckiest-guy {
+  font-family: 'Luckiest Guy', cursive;
+};
+
+.pacifico {
+  font-family: 'Pacifico', cursive;
+};
+
+.russo-one {
+  font-family: 'Russo One', sans-serif;
+};
+
+.titan-one {
+  font-family: 'Russo One', sans-serif;
+};
+
+.bungee-inline {
+font-family: 'Bungee Inline', cursive;
+};
