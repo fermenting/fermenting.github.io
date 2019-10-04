@@ -1,2 +1,4 @@
-# fermenting.github.io
-Digital Portfolio for Fermenting on GitHub.
+# portfolio
+portfolio &amp; resume
+
+[Let's do it live!](https://fermenting.github.io/portfoliolio/)
