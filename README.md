@@ -1,4 +1,3 @@
-# Portfolio
-## portfolio &amp; resume
+# Portfolio &amp; resume
 
-### [Let's do it live!](https://fermenting.github.io)
+## [Looking for Lyle?](https://fermenting.github.io)
