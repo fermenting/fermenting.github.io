@@ -1,338 +1,265 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { X, ChevronLeft, ChevronRight, Camera, QrCode, Printer } from 'lucide-react';
 
-// --- SVGs & Helpers ---
-const BeerGlassSVG = ({ srm, glassware }) => {
-  const srmColors = {
-    2: '#F8F096', 3: '#F2DF71', 4: '#EAD14F', 5: '#E1C233', 6: '#D5B01A', 
-    7: '#C9A105', 8: '#B98D00', 9: '#AF8100', 10: '#A37400', 11: '#986800', 
-    12: '#8E5B00', 13: '#855100', 14: '#7C4600', 15: '#733D00', 16: '#693400', 
-    17: '#612C00', 18: '#592400', 19: '#521D00', 20: '#4B1600', 25: '#290600', 
-    30: '#140000', 40: '#030000'
-  };
-  const hex = srmColors[Math.min(Math.round(srm || 4), 40)] || '#EAD14F';
+// --- INVENTORY DATA ---
+const inventory = [
+  {
+    id: 'happy-hoppy',
+    name: 'Happy Hoppy Hopkins',
+    style: 'Funky Wet Hop Belgian IPA',
+    status: 'On Tap',
+    tap: 'Tap 1',
+    abv: '7.0%',
+    ibu: 33,
+    srm: 14.1,
+    glass: 'Chalice',
+    description: 'Brewed with homegrown wet hops from the Peralta Community Garden. Funky, dry, and assertively hopped with 50/50 wet and dry whole cones.',
+    Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Whole-Cone Wet Hops, Yeast.',
+    Private_Grist: 'Extra Pale 2-Row (57.7%), Belgian Pilsner (26.4%), Munich Light (7.9%), Special B (5.4%), British Crystal 50/60L (2.6%)',
+    images: ['https://placehold.co/600x400/1A1613/D9822B?text=Happy+Hoppy+Hopkins', 'https://placehold.co/300x300/1A1613/D9822B?text=Harvest', 'https://placehold.co/300x300/1A1613/D9822B?text=Fermenting']
+  },
+  {
+    id: 'house-bitter',
+    name: 'Wet Hop House Bitter',
+    style: '2nd Partigyle English Bitter',
+    status: 'On Tap',
+    tap: 'Tap 2',
+    abv: '4.2%',
+    ibu: 28,
+    srm: 9.5,
+    glass: 'Nonic',
+    description: 'The 2nd runnings of our wet hop mash. A highly sessionable English Bitter utilizing the remaining homegrown wet hops.',
+    Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Fresh Wet Hops, Yeast.',
+    Private_Grist: '2nd runnings from 38.1 lb master mash (Extra Pale, Pilsner, Munich, Special B, Crystal).',
+    images: ['https://placehold.co/600x400/1A1613/D9822B?text=House+Bitter', 'https://placehold.co/300x300/1A1613/D9822B?text=Boil']
+  },
+  {
+    id: 'dnoy',
+    name: 'Do Not Open Yet',
+    style: 'English Barleywine',
+    status: 'The Cellar',
+    tap: 'Bottles',
+    abv: '11.3%',
+    ibu: 55,
+    srm: 24.0,
+    glass: 'Chalice',
+    description: '1st runnings of a massive 51.8 lb partigyle mash. Bottle conditioned and designed for extended cellaring. Rich, malty, and warming.',
+    Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast, Priming Sugar.',
+    Private_Grist: '1st Runnings. Master Mash: 51.8 lbs total malt.',
+    images: ['https://placehold.co/600x400/1A1613/D9822B?text=Do+Not+Open+Yet']
+  },
+  {
+    id: 'midlands',
+    name: 'Midlands',
+    style: 'English Strong Ale',
+    status: 'On Tap',
+    tap: 'Tap 3',
+    abv: '6.6%',
+    ibu: 40,
+    srm: 18.0,
+    glass: 'Nonic',
+    description: 'Middle runnings from our 3-way English partigyle. A balanced and robust strong ale.',
+    Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast.',
+    Private_Grist: 'Middle runnings from 51.8 lb master mash.',
+    images: ['https://placehold.co/600x400/1A1613/D9822B?text=Midlands']
+  },
+  {
+    id: 'wolfpack',
+    name: 'Wolfpack',
+    style: 'Smoked Amber Ale',
+    status: 'On Tap',
+    tap: 'Tap 4',
+    abv: '5.4%',
+    ibu: 28,
+    srm: 16.5,
+    glass: 'Pint',
+    description: 'The final runnings of the 3-way partigyle, steeped with smoked malt to create a deeply layered amber ale.',
+    Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast.',
+    Private_Grist: '3rd runnings from 51.8 lb master mash + Smoked Malt steep.',
+    images: ['https://placehold.co/600x400/1A1613/D9822B?text=Wolfpack']
+  }
+];
+
+// --- HELPER COMPONENTS ---
+const srmToHex = (srm) => {
+  if (srm < 2) return '#F3F993';
+  if (srm < 6) return '#F5D700';
+  if (srm < 10) return '#D57100';
+  if (srm < 15) return '#9F3E00';
+  if (srm < 20) return '#6F1C00';
+  if (srm < 30) return '#360800';
+  return '#1A0000';
+};
+
+const AFLogo = () => (
+  <svg viewBox="0 0 100 100" className="w-10 h-10 stroke-[#D9822B]" fill="none" strokeWidth="6" strokeLinecap="square">
+    {/* Vertical line */}
+    <line x1="50" y1="10" x2="50" y2="90" />
+    {/* A left leg */}
+    <line x1="50" y1="45" x2="20" y2="75" />
+    {/* F top bar */}
+    <line x1="50" y1="45" x2="80" y2="45" />
+    {/* A/F middle crossbar */}
+    <line x1="35" y1="60" x2="65" y2="60" />
+  </svg>
+);
+
+const BeerGlassIcon = ({ type, color }) => {
+  const hex = srmToHex(color);
   
-  if (glassware === 'Nonic') {
+  if (type === 'Chalice') {
     return (
-      <svg width="100%" height="100%" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5 2L4 6Q2 9 5 12L8 30H16L19 12Q22 9 20 6L19 2Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M2.7 8Q2 9 5 12L7.7 29H16.3L19 12Q22 9 21.3 8Z" fill={hex}/>
-        <path d="M5 2L4 6Q3.4 7.2 2.7 8H21.3Q20.6 7.2 20 6L19 2Z" fill="#F5F0E6" fillOpacity="0.9"/>
+      <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M4 8c0 5 3.5 9 8 9s8-4 8-9M12 17v5M9 22h6" stroke="#4A3F35" />
+        <path d="M5 8c0 4 3 7 7 7s7-3 7-7H5z" fill={hex} />
       </svg>
     );
   }
   
-  if (glassware === 'Chalice') {
+  if (type === 'Nonic') {
     return (
-      <svg width="100%" height="100%" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 2V8C4 18 11 20 11 20V30H7V32H17V30H13V20C13 20 20 18 20 8V2Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M4 8C4 17.5 10.5 19.2 11.5 19.2H12.5C13.5 19.2 20 17.5 20 8Z" fill={hex}/>
-        <path d="M4 2V8H20V2Z" fill="#F5F0E6" fillOpacity="0.9"/>
+      <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M7 2l-1 6c-.5 1-.5 2-1 3.5s.5 2.5 1 3.5l1.5 7h8l1.5-7c.5-1 .5-2 1-3.5s-.5-2.5-1-3.5l-1-6H7z" stroke="#4A3F35" />
+        <path d="M6.5 5l-.5 3c-.5 1-.5 2-1 3.5s.5 2.5 1 3.5l1.5 6h8l1.5-6c.5-1 .5-2 1-3.5s-.5-2.5-1-3.5l-.5-3H6.5z" fill={hex} />
       </svg>
     );
   }
 
+  // Standard Pint
   return (
-    <svg width="100%" height="100%" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 2L7 30H17L20 2Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M4.6 8L6.8 29H17.2L19.4 8Z" fill={hex}/>
-      <path d="M4 2L4.6 8H19.4L20 2Z" fill="#F5F0E6" fillOpacity="0.9"/>
+    <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M6 2l1.5 20h9L18 2H6z" stroke="#4A3F35" />
+      <path d="M6.5 6l1.2 15h8.6l1.2-15H6.5z" fill={hex} />
     </svg>
   );
 };
 
+// --- MAIN APP ---
 export default function App() {
   const [activeTab, setActiveTab] = useState('taproom');
   const [selectedBeer, setSelectedBeer] = useState(null);
   const [activeModalImage, setActiveModalImage] = useState(0);
-  const [showTipModal, setShowTipModal] = useState(false);
-  const [activePartigyle, setActivePartigyle] = useState(null);
 
-  // Reset modal image when selecting a new beer
-  useEffect(() => {
+  const openBeerModal = (beer) => {
+    setSelectedBeer(beer);
     setActiveModalImage(0);
-  }, [selectedBeer]);
+  };
 
-  // --- Initial State (Loaded from Google Sheets Data) ---
-  const [inventory] = useState([
-    {
-      Batch_ID: '001', URL_Slug: 'happy-hoppy-hopkins', Beer_Name: 'Happy Hoppy Hopkins',
-      Subtitle_Style: 'Funky Wet Hop Belgian IPA', BJCP_Category: '21B/25C', Status: 'On Tap',
-      Tap_or_Slot: 'Tap 1', Serving_Format: 'Draft', ABV: '7.0%', IBU: '33', SRM: 14.1, Glassware: 'Chalice',
-      Commercial_Description: 'A wild, funky ride. Wet hops fresh from the community garden layered over a Belgian Golden Strong base with Roeselare blend.',
-      Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Whole-Cone Wet Hops, Yeast.',
-      Partigyle_Group: 'Wet Hop Partigyle (Gyle 1)',
-      Avg_Guest_Rating: '4.8', Total_Reviews: '12',
-      Private_Grist: '57.7% Extra Pale 2-Row, 26.4% Belgian Pilsner, 7.9% Munich Light, 5.4% Special B',
-      Images: [
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Happy+Hoppy+Main',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Hop+Harvest',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Fermentation'
-      ]
-    },
-    {
-      Batch_ID: '002', URL_Slug: 'wet-hop-house-bitter', Beer_Name: 'Wet Hop House Bitter',
-      Subtitle_Style: '2nd Partigyle English Bitter', BJCP_Category: '11B', Status: 'On Tap',
-      Tap_or_Slot: 'Tap 2', Serving_Format: 'Draft', ABV: '4.2%', IBU: '28', SRM: 9.5, Glassware: 'Nonic',
-      Commercial_Description: 'The second runnings of our wet hop mash. A crushable, malt-forward pub ale with an expressive fresh-hop aroma.',
-      Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Fresh Wet Hops, Yeast.',
-      Partigyle_Group: 'Wet Hop Partigyle (Gyle 2)',
-      Avg_Guest_Rating: '4.5', Total_Reviews: '8',
-      Private_Grist: 'Second runnings of 38.1 lb master mash.',
-      Images: [
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=House+Bitter+Main',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Sparge',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Pint+Pour'
-      ]
-    },
-    {
-      Batch_ID: '003', URL_Slug: 'do-not-open-yet', Beer_Name: 'Do Not Open Yet',
-      Subtitle_Style: 'English Barleywine', BJCP_Category: '17D', Status: 'The Cellar',
-      Tap_or_Slot: 'Cellar Reserve', Serving_Format: 'Bottle Conditioned', ABV: '11.3%', IBU: '55', SRM: 24, Glassware: 'Chalice',
-      Commercial_Description: 'A massive, complex barleywine. First runnings of a 3-way partigyle split. Needs years to peak.',
-      Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast, Priming Sugar.',
-      Cellar_Format_and_Aging_Notes: 'Hold until Winter 2027–2030. Cellar at 55°F.',
-      Partigyle_Group: 'English 3-Way (Gyle 1)',
-      Avg_Guest_Rating: '4.9', Total_Reviews: '4',
-      Private_Grist: 'First runnings of 51.8 lb master mash. OG: 1.108.',
-      Images: [
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Waxed+Bottles',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Mash+In',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Cellar+Storage'
-      ]
-    },
-    {
-      Batch_ID: '004', URL_Slug: 'midlands', Beer_Name: 'Midlands',
-      Subtitle_Style: 'English Strong Ale', BJCP_Category: '17A', Status: 'On Tap',
-      Tap_or_Slot: 'Tap 3', Serving_Format: 'Draft', ABV: '6.6%', IBU: '40', SRM: 18, Glassware: 'Nonic',
-      Commercial_Description: 'Rich, caramel-driven, and balanced. The middle child of our massive English mash.',
-      Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast.',
-      Partigyle_Group: 'English 3-Way (Gyle 2)',
-      Avg_Guest_Rating: '4.6', Total_Reviews: '7',
-      Private_Grist: 'Middle runnings of 51.8 lb master mash.',
-      Images: [
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Midlands+Pour',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Boil+Kettle'
-      ]
-    },
-    {
-      Batch_ID: '005', URL_Slug: 'wolfpack', Beer_Name: 'Wolfpack',
-      Subtitle_Style: 'Smoked Amber Ale', BJCP_Category: '32A', Status: 'On Tap',
-      Tap_or_Slot: 'Tap 4', Serving_Format: 'Draft', ABV: '5.4%', IBU: '28', SRM: 16.5, Glassware: 'Pint',
-      Commercial_Description: 'Steeped with smoked malt in the third runnings. Savory, malty, and incredibly drinkable.',
-      Commercial_Ingredients_Disclosure: 'Water, Malted Barley (Smoked), Hops, Yeast.',
-      Partigyle_Group: 'English 3-Way (Gyle 3)',
-      Avg_Guest_Rating: '4.3', Total_Reviews: '9',
-      Private_Grist: 'Third runnings of 51.8 lb master mash + Smoked Malt steep.',
-      Images: [
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Wolfpack+Main',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Smoked+Malt',
-        'https://placehold.co/600x400/2C2520/F5F0E6?text=Kegging'
-      ]
-    }
-  ]);
-
-  const activeBeers = inventory.filter(b => b.Status === 'On Tap');
-  const cellarBeers = inventory.filter(b => b.Status === 'The Cellar');
-  const vaultBeers = inventory.filter(b => b.Status === 'Archived');
+  const renderBeerCard = (beer) => (
+    <div 
+      key={beer.id} 
+      onClick={() => openBeerModal(beer)}
+      className="bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 cursor-pointer hover:border-[#D9822B] transition-colors"
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <div className="flex items-center space-x-2 mb-2">
+            <span className="text-xs font-bold tracking-widest text-[#D9822B] uppercase">{beer.tap}</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#2C2520] text-[#A39686]">
+              {beer.abv}
+            </span>
+          </div>
+          <h3 className="font-serif text-2xl font-bold text-[#F5F0E6] mb-1">{beer.name}</h3>
+          <p className="text-sm text-[#A39686]">{beer.style}</p>
+        </div>
+        <div className="flex-shrink-0 ml-4">
+          <BeerGlassIcon type={beer.glass} color={beer.srm} />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#12100E] text-[#F5F0E6] font-sans selection:bg-[#D9822B] selection:text-white">
+    <div className="min-h-screen bg-[#12100E] text-[#F5F0E6] font-sans selection:bg-[#D9822B] selection:text-white pb-24">
       {/* Header */}
-      <header className="border-b border-[#2C2520] bg-[#1A1613] sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {/* Custom SVG Logo */}
-            <div className="w-12 h-12 flex items-center justify-center">
-              <svg width="100%" height="100%" viewBox="0 0 100 100" stroke="#D9822B" strokeWidth="8" strokeLinecap="square" strokeLinejoin="miter" fill="none">
-                <path d="M50 10 L50 90 M50 50 L90 50 M50 50 L20 80 M30 65 L70 65" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="font-serif text-2xl font-bold tracking-tight text-[#F5F0E6]">Fermenting Life</h1>
-              <div className="text-[10px] tracking-[0.2em] text-[#A39686] uppercase font-semibold">Brewhouse</div>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <button onClick={() => setShowTipModal(true)} className="text-[#D9822B] text-xs font-bold uppercase tracking-wider hover:text-white transition-colors hidden sm:block">☕ Hop Fund</button>
+      <header className="px-6 py-8 border-b border-[#2C2520] bg-[#1A1613]">
+        <div className="max-w-3xl mx-auto flex items-center space-x-4">
+          <AFLogo />
+          <div>
+            <h1 className="font-serif text-3xl font-bold tracking-tight text-[#F5F0E6]">Fermenting Life</h1>
+            <div className="text-xs tracking-[0.2em] text-[#A39686] uppercase font-semibold">Brewhouse & Taproom</div>
           </div>
         </div>
-        
-        {/* Navigation Tabs */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto hide-scrollbar border-t border-[#2C2520]">
-          {['taproom', 'cellar', 'brewhouse', 'labels'].map(tab => (
+      </header>
+      
+      {/* Navigation Tabs */}
+      <div className="sticky top-0 z-30 bg-[#12100E]/90 backdrop-blur border-b border-[#2C2520]">
+        <div className="max-w-3xl mx-auto flex overflow-x-auto hide-scrollbar">
+          {['taproom', 'cellar', 'brewhouse', 'labels'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap border-b-2 transition-colors ${
-                activeTab === tab ? 'border-[#D9822B] text-[#D9822B]' : 'border-transparent text-[#8E8275] hover:text-[#C2B6A7]'
+              className={`flex-1 min-w-[100px] py-4 text-xs font-bold tracking-wider uppercase transition-colors whitespace-nowrap ${
+                activeTab === tab ? 'text-[#D9822B] border-b-2 border-[#D9822B]' : 'text-[#8C7A6B] hover:text-[#F5F0E6]'
               }`}
             >
-              {tab === 'taproom' ? 'On Tap' : tab === 'labels' ? '🖨️ Labels' : tab}
+              {tab.replace('-', ' ')}
             </button>
           ))}
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* TAB: TAPROOM */}
+      <main className="max-w-3xl mx-auto p-6 space-y-6">
+        {/* TAPROOM TAB */}
         {activeTab === 'taproom' && (
-          <div className="space-y-10">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-              <div>
-                <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">Currently Pouring</h2>
-                <p className="text-[#A39686] text-sm mt-1">Live from the draft system.</p>
-              </div>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setActivePartigyle(activePartigyle === 'Wet Hop Partigyle' ? null : 'Wet Hop Partigyle')}
-                  className={`text-[10px] font-bold uppercase px-3 py-1.5 rounded-full border transition-colors ${activePartigyle === 'Wet Hop Partigyle' ? 'bg-[#D9822B] text-[#12100E] border-[#D9822B]' : 'bg-[#1A1613] text-[#A39686] border-[#2C2520]'}`}
-                >
-                  Highlight: Wet Hop Split
-                </button>
-                <button 
-                  onClick={() => setActivePartigyle(activePartigyle === 'English 3-Way' ? null : 'English 3-Way')}
-                  className={`text-[10px] font-bold uppercase px-3 py-1.5 rounded-full border transition-colors ${activePartigyle === 'English 3-Way' ? 'bg-[#D9822B] text-[#12100E] border-[#D9822B]' : 'bg-[#1A1613] text-[#A39686] border-[#2C2520]'}`}
-                >
-                  Highlight: 3-Way English Split
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {activeBeers.map(beer => {
-                const isHighlighted = activePartigyle && beer.Partigyle_Group?.includes(activePartigyle);
-                const isFaded = activePartigyle && !isHighlighted;
-                
-                return (
-                  <div 
-                    key={beer.Batch_ID} 
-                    onClick={() => setSelectedBeer(beer)}
-                    className={`bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 cursor-pointer hover:border-[#D9822B] transition-all group ${isFaded ? 'opacity-30 grayscale' : ''} ${isHighlighted ? 'ring-1 ring-[#D9822B]' : ''}`}
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-16 flex items-center justify-center opacity-90 group-hover:scale-110 transition-transform">
-                          <BeerGlassSVG srm={beer.SRM} glassware={beer.Glassware} />
-                        </div>
-                        <div>
-                          <div className="text-[10px] font-bold tracking-widest text-[#D9822B] uppercase mb-1">{beer.Tap_or_Slot}</div>
-                          <h3 className="font-serif text-xl font-bold text-[#F5F0E6] group-hover:text-[#D9822B] transition-colors">{beer.Beer_Name}</h3>
-                          <div className="text-sm text-[#A39686]">{beer.Subtitle_Style}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-[#F5F0E6]">{beer.ABV}</div>
-                        <div className="text-[10px] text-[#8E8275] uppercase tracking-wider">ABV</div>
-                      </div>
-                    </div>
-                    
-                    {beer.Partigyle_Group && (
-                      <div className="inline-block bg-[#12100E] border border-[#2C2520] rounded px-2 py-1 text-[10px] text-[#A39686] uppercase mb-4">
-                        🧬 {beer.Partigyle_Group}
-                      </div>
-                    )}
-                    
-                    <p className="text-sm text-[#C2B6A7] line-clamp-2">{beer.Commercial_Description}</p>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="space-y-4">
+            {inventory.filter(b => b.status === 'On Tap').map(renderBeerCard)}
           </div>
         )}
 
-        {/* TAB: CELLAR */}
+        {/* CELLAR TAB */}
         {activeTab === 'cellar' && (
-          <div className="space-y-10">
-            <div>
-              <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">The Cellar</h2>
-              <p className="text-[#A39686] text-sm mt-1">Bottle-conditioned and vintage releases.</p>
+          <div className="space-y-4">
+            <div className="p-4 bg-[#1A1613] border border-[#2C2520] rounded-xl mb-6 text-sm text-[#A39686]">
+              <span className="text-[#D9822B]">The Cellar</span> holds our bottle-conditioned and vintage high-gravity releases.
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {cellarBeers.map(beer => (
-                <div 
-                  key={beer.Batch_ID} 
-                  onClick={() => setSelectedBeer(beer)}
-                  className="bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 cursor-pointer hover:border-[#D9822B] transition-all group"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="text-[10px] font-bold tracking-widest text-[#A39686] uppercase mb-1">Vintage Reserve</div>
-                      <h3 className="font-serif text-2xl font-bold text-[#F5F0E6] group-hover:text-[#D9822B] transition-colors">{beer.Beer_Name}</h3>
-                      <div className="text-sm text-[#D9822B] font-semibold">{beer.Subtitle_Style}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-[#F5F0E6]">{beer.ABV}</div>
-                      <div className="text-[10px] text-[#8E8275] uppercase tracking-wider">ABV</div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-[#12100E] rounded-lg p-3 border border-[#2C2520] mb-4">
-                    <div className="text-[10px] text-[#D9822B] font-bold uppercase mb-1">Cellarmaster Notes</div>
-                    <div className="text-xs text-[#A39686]">{beer.Cellar_Format_and_Aging_Notes}</div>
-                  </div>
-                  <p className="text-sm text-[#C2B6A7]">{beer.Commercial_Description}</p>
-                </div>
-              ))}
-            </div>
+            {inventory.filter(b => b.status === 'The Cellar').map(renderBeerCard)}
           </div>
         )}
 
-        {/* TAB: BREWHOUSE */}
+        {/* BREWHOUSE TAB */}
         {activeTab === 'brewhouse' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 sm:p-8 space-y-5">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-[#D9822B]">The Brewer</span>
-                <h1 className="font-serif text-3xl font-bold text-[#F5F0E6] mt-2">Lyle "Ale-Xander" Farrell</h1>
-              </div>
-              
-              <p className="text-sm text-[#C2B6A7] leading-relaxed">
-                Lyle started brewing at 20 years old while studying Food Science with a brewing emphasis at UC Davis. He has worked for Wells & Young's in the UK, MillerCoors, and E.J. Phair, and moonlighted for Heretic a few days.
-              </p>
-              
-              <p className="text-sm text-[#C2B6A7] leading-relaxed">
-                He helped found BuzzWorks, and during that time collaborated with Black Hammer Brewing, Anderson Valley, Shadow Puppet Brewing, and more. 
-              </p>
-              
-              <p className="text-sm text-[#C2B6A7] leading-relaxed italic border-l-2 border-[#D9822B] pl-4">
-                He's currently home brewing for fun and to stay hydrated.
-              </p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-[#2C2520]">
-                <div className="p-5 rounded-xl bg-[#12100E] border border-[#2C2520]">
-                  <div className="text-xs font-bold text-[#D9822B] uppercase mb-2">Partigyle Architecture</div>
-                  <p className="text-xs text-[#A39686] leading-relaxed">High-gravity first runnings become cellar-aged Barleywines, while second and third runnings yield expressive English Strongs, Smoked Ambers, and Wet-Hop Bitters.</p>
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="bg-[#1A1613] border border-[#2C2520] rounded-2xl overflow-hidden">
+              <img src="https://placehold.co/800x400/1A1613/D9822B?text=Brewery+Floor" alt="Brewhouse" className="w-full h-48 object-cover" />
+              <div className="p-8 space-y-6">
+                <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">The Brewer</h2>
+                
+                <div className="prose prose-invert prose-p:text-[#C2B6A7] prose-p:leading-relaxed">
+                  <p>
+                    Lyle "Ale-Xander" Farrell began his brewing journey at age 20 while studying Food Science with a Brewing Emphasis at UC Davis.
+                  </p>
+                  <p>
+                    His professional background spans the globe and the industry, including stints at Wells & Young's in the UK, MillerCoors, and E.J. Phair, along with moonlighting at Heretic Brewing. 
+                  </p>
+                  <p>
+                    Lyle later helped found BuzzWorks, where he collaborated on commercial batches with Black Hammer Brewing, Anderson Valley, and Shadow Puppet Brewing. Today, Fermenting Life is his creative outlet—home brewing for fun, exploration, and simply to stay hydrated.
+                  </p>
                 </div>
-                <div className="p-5 rounded-xl bg-[#12100E] border border-[#2C2520]">
-                  <div className="text-xs font-bold text-[#D9822B] uppercase mb-2">Commercial Discipline</div>
-                  <p className="text-xs text-[#A39686] leading-relaxed">Applying commercial wort production, water chemistry adjustment, and quality control to small-batch artisan releases.</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Brewhouse Image Gallery */}
-            <div className="space-y-4">
-              <img src="https://placehold.co/600x800/2C2520/F5F0E6?text=UC+Davis+Days" alt="Brewing at UC Davis" className="w-full h-64 object-cover rounded-2xl border border-[#2C2520]" />
-              <img src="https://placehold.co/600x400/2C2520/F5F0E6?text=The+Brewery" alt="Current Brewhouse Setup" className="w-full h-48 object-cover rounded-2xl border border-[#2C2520]" />
+                {/* Brewhouse Image Gallery */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-6">
+                  <img src="https://placehold.co/300x300/1A1613/D9822B?text=Boil+Kettle" alt="Kettle" className="rounded-lg aspect-square object-cover" />
+                  <img src="https://placehold.co/300x300/1A1613/D9822B?text=Fermenters" alt="Fermenters" className="rounded-lg aspect-square object-cover" />
+                  <img src="https://placehold.co/300x300/1A1613/D9822B?text=Grain+Mill" alt="Malt" className="rounded-lg aspect-square object-cover" />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* TAB: QR LABELS */}
+        {/* LABELS TAB */}
         {activeTab === 'labels' && (
-          <div className="space-y-6">
-            <div>
-              <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">Labels</h2>
-              <p className="text-[#A39686] text-sm mt-1">Printable files for bottles and taps.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {inventory.map(beer => (
-                <div key={beer.Batch_ID} className="bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-                   <div className="w-16 h-24 mb-4 opacity-50"><BeerGlassSVG srm={beer.SRM} glassware={beer.Glassware} /></div>
-                   <h3 className="font-serif text-xl font-bold text-[#F5F0E6] mb-1">{beer.Beer_Name}</h3>
-                   <div className="text-[10px] text-[#D9822B] uppercase tracking-widest mb-4">{beer.Serving_Format}</div>
-                   <button className="bg-[#2C2520] hover:bg-[#3C332A] text-[#F5F0E6] font-bold rounded-lg px-4 py-2 text-xs transition-colors">Print Label</button>
+                <div key={beer.id} className="bg-[#1A1613] border border-[#2C2520] p-5 rounded-2xl flex flex-col items-center text-center">
+                  <QrCode className="w-12 h-12 text-[#A39686] mb-3" />
+                  <h3 className="font-serif font-bold text-[#F5F0E6]">{beer.name}</h3>
+                  <p className="text-xs text-[#8C7A6B] mb-4">{beer.style}</p>
+                  <button className="w-full py-2 bg-[#2C2520] text-[#D9822B] text-xs font-bold rounded-lg uppercase tracking-wider flex justify-center items-center">
+                    <Printer className="w-4 h-4 mr-2" /> Print QR
+                  </button>
                 </div>
               ))}
             </div>
@@ -342,74 +269,88 @@ export default function App() {
 
       {/* BEER DETAIL MODAL */}
       {selectedBeer && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" onClick={() => setSelectedBeer(null)}>
-          <div 
-            className="w-full max-w-2xl bg-[#1A1613] border border-[#2C2520] rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="absolute top-4 right-4 z-10">
-              <button onClick={() => setSelectedBeer(null)} className="w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80">&times;</button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-6 animate-in fade-in">
+          <div className="w-full max-w-2xl bg-[#12100E] h-[90vh] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl flex flex-col border border-[#2C2520] overflow-hidden shadow-2xl relative animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-4">
             
-            <div className="overflow-y-auto hide-scrollbar p-6 sm:p-10">
-              <div className="flex gap-6 mb-6 items-start">
-                <div className="w-16 h-24 flex-shrink-0">
-                  <BeerGlassSVG srm={selectedBeer.SRM} glassware={selectedBeer.Glassware} />
-                </div>
+            <button 
+              onClick={() => setSelectedBeer(null)}
+              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="overflow-y-auto p-6 sm:p-8 space-y-8">
+              
+              {/* Header section */}
+              <div className="flex justify-between items-start gap-4">
                 <div>
-                  <div className="text-[10px] font-bold text-[#D9822B] uppercase tracking-widest mb-1">{selectedBeer.Tap_or_Slot}</div>
-                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#F5F0E6] mb-1">{selectedBeer.Beer_Name}</h2>
-                  <div className="text-[#A39686] font-medium">{selectedBeer.Subtitle_Style}</div>
+                  <h2 className="font-serif text-3xl font-bold text-[#F5F0E6] mb-2">{selectedBeer.name}</h2>
+                  <p className="text-sm font-semibold text-[#D9822B] uppercase tracking-wide">{selectedBeer.style}</p>
+                  <p className="text-sm text-[#A39686] mt-1">{selectedBeer.tap} &bull; {selectedBeer.abv} ABV</p>
                 </div>
+                <div className="flex-shrink-0 opacity-80">
+                  <BeerGlassIcon type={selectedBeer.glass} color={selectedBeer.srm} />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="prose prose-invert">
+                <p className="text-lg text-[#C2B6A7] leading-relaxed">
+                  {selectedBeer.description}
+                </p>
               </div>
 
               {/* Image Gallery */}
-              {selectedBeer.Images && selectedBeer.Images.length > 0 && (
-                <div className="mb-8">
-                  <div className="aspect-video w-full rounded-xl overflow-hidden mb-3 border border-[#2C2520]">
-                    <img src={selectedBeer.Images[activeModalImage]} alt="Featured" className="w-full h-full object-cover transition-opacity duration-300" />
+              {selectedBeer.images && selectedBeer.images.length > 0 && (
+                <div className="space-y-3">
+                  <div className="aspect-[3/2] w-full rounded-xl overflow-hidden border border-[#2C2520] bg-black">
+                    <img 
+                      src={selectedBeer.images[activeModalImage]} 
+                      alt="Featured" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="flex gap-3 overflow-x-auto hide-scrollbar">
-                    {selectedBeer.Images.map((img, idx) => (
-                      <button 
-                        key={idx} 
-                        onClick={() => setActiveModalImage(idx)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${activeModalImage === idx ? 'border-[#D9822B] opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`}
-                      >
-                        <img src={img} alt={`Thumbnail ${idx+1}`} className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
+                  {selectedBeer.images.length > 1 && (
+                    <div className="flex space-x-3 overflow-x-auto hide-scrollbar pb-2">
+                      {selectedBeer.images.map((img, idx) => (
+                        <button 
+                          key={idx}
+                          onClick={() => setActiveModalImage(idx)}
+                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${activeModalImage === idx ? 'border-[#D9822B] opacity-100' : 'border-transparent opacity-50 hover:opacity-80'}`}
+                        >
+                          <img src={img} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Description */}
-              <p className="text-[#C2B6A7] leading-relaxed mb-8 text-lg">{selectedBeer.Commercial_Description}</p>
-
-              {/* Ingredients */}
-              <div className="border border-[#2C2520] rounded-xl p-5 mb-8 bg-[#12100E]">
-                <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-2">Ingredients</h4>
-                <p className="text-sm text-[#E8E1D7]">{selectedBeer.Commercial_Ingredients_Disclosure}</p>
-              </div>
-
-              {/* Public Brew Log View */}
-              <div className="border border-[#2C2520] rounded-xl p-5 mb-8 bg-[#1A1613]">
-                <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-3">Brew Log</h4>
-                <p className="text-xs text-[#C2B6A7]">{selectedBeer.Private_Grist}</p>
-              </div>
-
-              {/* Interaction */}
-              <div className="border-t border-[#2C2520] pt-8">
-                <h4 className="font-serif text-xl font-bold text-[#F5F0E6] mb-4">Log a Tasting</h4>
-                <div className="space-y-4">
-                  <input type="text" placeholder="Your Name or Untappd Handle" className="w-full bg-[#12100E] border border-[#2C2520] rounded-lg p-3 text-sm text-[#F5F0E6] focus:border-[#D9822B] outline-none" />
-                  <textarea placeholder="Tasting notes (aroma, flavor, mouthfeel)..." rows="3" className="w-full bg-[#12100E] border border-[#2C2520] rounded-lg p-3 text-sm text-[#F5F0E6] focus:border-[#D9822B] outline-none"></textarea>
-                  <div className="flex gap-2">
-                    <button className="flex-1 bg-[#D9822B] hover:bg-[#E5923B] text-[#12100E] font-bold rounded-lg py-3 text-sm transition-colors">Submit Rating</button>
-                    <button className="bg-[#2C2520] hover:bg-[#3C332A] text-[#F5F0E6] font-bold rounded-lg px-4 py-3 text-sm transition-colors">📸 Attach Photo</button>
-                  </div>
+              {/* Ingredients & Brew Log */}
+              <div className="bg-[#1A1613] border border-[#2C2520] rounded-xl p-6 space-y-6">
+                <div>
+                  <h4 className="text-[10px] text-[#A39686] font-bold uppercase tracking-wider mb-2">Ingredients</h4>
+                  <p className="text-sm text-[#E8E1D7]">{selectedBeer.Commercial_Ingredients_Disclosure}</p>
+                </div>
+                
+                <div className="pt-4 border-t border-[#2C2520]">
+                  <h4 className="text-[10px] text-[#A39686] font-bold uppercase tracking-wider mb-2">Brewer's Log</h4>
+                  <p className="text-sm text-[#C2B6A7]">{selectedBeer.Private_Grist}</p>
                 </div>
               </div>
+
+              {/* Tasting Form */}
+              <div className="pt-6 border-t border-[#2C2520]">
+                <h4 className="font-serif text-xl font-bold text-[#F5F0E6] mb-4">Log a Tasting</h4>
+                <div className="space-y-4">
+                  <input type="text" placeholder="Your Name" className="w-full bg-[#1A1613] border border-[#2C2520] rounded-lg p-3 text-[#F5F0E6] focus:border-[#D9822B] focus:outline-none text-sm" />
+                  <textarea placeholder="Tasting notes..." rows="3" className="w-full bg-[#1A1613] border border-[#2C2520] rounded-lg p-3 text-[#F5F0E6] focus:border-[#D9822B] focus:outline-none text-sm"></textarea>
+                  <button className="w-full bg-[#D9822B] hover:bg-[#c07326] text-[#12100E] font-bold py-3 rounded-lg transition-colors flex items-center justify-center">
+                    Submit Notes
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
