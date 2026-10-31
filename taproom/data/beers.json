@@ -1,0 +1,72 @@
+[
+  {
+    "id": "BATCH-001",
+    "slug": "happy-hoppy-hopkins",
+    "name": "Happy Hoppy Hopkins",
+    "subtitle": "Funky Wet Hop Belgian IPA",
+    "status": "On Tap",
+    "tapSlot": "Tap 1",
+    "abv": 7,
+    "ibu": 33,
+    "srm": 14.1,
+    "description": "First-runnings Belgian-style IPA brewed with freshly harvested whole-cone wet hops. Bright citrus aromatics with a tart, funky finish.",
+    "commercialIngredients": "Water, Malted Barley, Whole-Cone Wet Hops, Yeast.",
+    "allergenWarning": "Contains: Gluten (Malted Barley)"
+  },
+  {
+    "id": "BATCH-002",
+    "slug": "wet-hop-house-bitter",
+    "name": "Wet Hop House Bitter",
+    "subtitle": "2nd Partigyle English Bitter",
+    "status": "On Tap",
+    "tapSlot": "Tap 2",
+    "abv": 4.2,
+    "ibu": 28,
+    "srm": 9.5,
+    "description": "Crisp, sessionable second-runnings bitter with a biscuit malt backbone and fresh garden-hop bitterness.",
+    "commercialIngredients": "Water, Malted Barley, Homegrown Fresh Wet Hops, Yeast.",
+    "allergenWarning": "Contains: Gluten (Malted Barley)"
+  },
+  {
+    "id": "BATCH-003",
+    "slug": "do-not-open-yet",
+    "name": "Do Not Open Yet",
+    "subtitle": "Vintage English Barleywine",
+    "status": "The Cellar",
+    "tapSlot": "Cellar Bin A1",
+    "abv": 11.3,
+    "ibu": 55,
+    "srm": 24,
+    "description": "A deeply layered barleywine built for long-term cellar aging with dark fig, treacle, and warming English hop bitterness.",
+    "commercialIngredients": "Water, Malted Barley, Hops, Yeast, Priming Sugar.",
+    "allergenWarning": "Contains: Gluten (Malted Barley)"
+  },
+  {
+    "id": "BATCH-004",
+    "slug": "midlands",
+    "name": "Midlands",
+    "subtitle": "English Strong Ale",
+    "status": "On Tap",
+    "tapSlot": "Tap 3",
+    "abv": 6.6,
+    "ibu": 40,
+    "srm": 18,
+    "description": "Copper-amber English strong ale with toasted bread crust, orange marmalade, and a firm British hop backbone.",
+    "commercialIngredients": "Water, Malted Barley, Hops, Yeast.",
+    "allergenWarning": "Contains: Gluten (Malted Barley)"
+  },
+  {
+    "id": "BATCH-005",
+    "slug": "wolfpack",
+    "name": "Wolfpack",
+    "subtitle": "Smoked Amber Ale",
+    "status": "On Tap",
+    "tapSlot": "Tap 4",
+    "abv": 5.4,
+    "ibu": 28,
+    "srm": 16.5,
+    "description": "A balanced smoked amber with campfire aromatics, caramel sweetness, and a clean, savory finish.",
+    "commercialIngredients": "Water, Malted Barley (including Beechwood Smoked Malt), Hops, Yeast.",
+    "allergenWarning": "Contains: Gluten (Malted Barley)"
+  }
+]
