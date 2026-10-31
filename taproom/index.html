@@ -42,12 +42,9 @@ const BeerGlassSVG = ({ srm, glassware }) => {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('taproom');
-  const [brewerAdmin, setBrewerAdmin] = useState(false);
   const [selectedBeer, setSelectedBeer] = useState(null);
   const [activeModalImage, setActiveModalImage] = useState(0);
   const [showTipModal, setShowTipModal] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [pinInput, setPinInput] = useState('');
   const [activePartigyle, setActivePartigyle] = useState(null);
 
   // Reset modal image when selecting a new beer
@@ -138,17 +135,6 @@ export default function App() {
   const cellarBeers = inventory.filter(b => b.Status === 'The Cellar');
   const vaultBeers = inventory.filter(b => b.Status === 'Archived');
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (pinInput === '1975' || pinInput === 'demo') {
-      setBrewerAdmin(true);
-      setShowAdminLogin(false);
-      setPinInput('');
-    } else {
-      setPinInput('');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#12100E] text-[#F5F0E6] font-sans selection:bg-[#D9822B] selection:text-white">
       {/* Header */}
@@ -168,9 +154,6 @@ export default function App() {
           </div>
           <div className="flex gap-4">
             <button onClick={() => setShowTipModal(true)} className="text-[#D9822B] text-xs font-bold uppercase tracking-wider hover:text-white transition-colors hidden sm:block">☕ Hop Fund</button>
-            <button onClick={() => setShowAdminLogin(true)} className="text-[#A39686] text-xs font-bold uppercase tracking-wider hover:text-white transition-colors">
-              {brewerAdmin ? '🔓 Admin' : '🔒 Login'}
-            </button>
           </div>
         </div>
         
@@ -409,13 +392,11 @@ export default function App() {
                 <p className="text-sm text-[#E8E1D7]">{selectedBeer.Commercial_Ingredients_Disclosure}</p>
               </div>
 
-              {/* Private Brewer Mode View */}
-              {brewerAdmin && (
-                <div className="border border-indigo-900/50 rounded-xl p-5 mb-8 bg-indigo-950/20">
-                  <h4 className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-3">🔒 Private Brew Log</h4>
-                  <p className="text-xs text-indigo-200">{selectedBeer.Private_Grist}</p>
-                </div>
-              )}
+              {/* Public Brew Log View */}
+              <div className="border border-[#2C2520] rounded-xl p-5 mb-8 bg-[#1A1613]">
+                <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-3">Brew Log</h4>
+                <p className="text-xs text-[#C2B6A7]">{selectedBeer.Private_Grist}</p>
+              </div>
 
               {/* Interaction */}
               <div className="border-t border-[#2C2520] pt-8">
@@ -430,26 +411,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ADMIN LOGIN MODAL */}
-      {showAdminLogin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 relative">
-            <button onClick={() => setShowAdminLogin(false)} className="absolute top-4 right-4 text-[#A39686] hover:text-white">&times;</button>
-            <h3 className="font-serif text-xl font-bold text-[#F5F0E6] mb-4">Brewer Unlock</h3>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <input 
-                type="password" 
-                value={pinInput}
-                onChange={e => setPinInput(e.target.value)}
-                placeholder="Enter PIN" 
-                className="w-full bg-[#12100E] border border-[#2C2520] rounded-lg p-3 text-center tracking-[0.5em] text-[#F5F0E6] focus:border-[#D9822B] outline-none" 
-              />
-              <button type="submit" className="w-full bg-[#2C2520] hover:bg-[#3C332A] text-[#F5F0E6] font-bold rounded-lg py-3 text-sm transition-colors">Unlock Admin Tools</button>
-            </form>
           </div>
         </div>
       )}
