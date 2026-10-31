@@ -203,7 +203,7 @@
             </div>
             
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto hide-scrollbar border-t border-[#2C2520]">
-              {['taproom', 'cellar', 'brewhouse', ...(brewerAdmin ? ['labels'] : [])].map(tab => (
+              {['taproom', 'cellar', 'brewhouse', 'labels'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -211,7 +211,7 @@
                     activeTab === tab ? 'border-[#D9822B] text-[#D9822B]' : 'border-transparent text-[#8E8275] hover:text-[#C2B6A7]'
                   }`}
                 >
-                  {tab === 'taproom' ? 'On Tap' : tab === 'labels' ? '🖨️ QR Studio' : tab}
+                  {tab === 'taproom' ? 'On Tap' : tab === 'labels' ? '🖨️ Labels' : tab}
                 </button>
               ))}
             </div>
@@ -351,15 +351,15 @@
                 </div>
               </div>
             )}
-          </main>
 
-          {selectedBeer && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" onClick={() => setSelectedBeer(null)}>
-              <div className="w-full max-w-2xl bg-[#1A1613] border border-[#2C2520] rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                <button onClick={() => setSelectedBeer(null)} className="absolute top-4 right-4 z-10 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80">&times;</button>
-                <div className="overflow-y-auto hide-scrollbar p-6 sm:p-10">
-                  <div className="flex gap-6 mb-6 items-start">
-                    <div className="w-16 h-24 flex-shrink-0"><BeerGlassSVG srm={selectedBeer.SRM} glassware={selectedBeer.Glassware} /></div>
+            {activeTab === 'labels' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">Labels</h2>
+                  <p className="text-[#A39686] text-sm mt-1">Printable files for bottles and taps.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {inventory.map(beer => (
                     <div>
                       <div className="text-[10px] font-bold text-[#D9822B] uppercase tracking-widest mb-1">{selectedBeer.Tap_or_Slot}</div>
                       <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#F5F0E6] mb-1">{selectedBeer.Beer_Name}</h2>
@@ -411,7 +411,7 @@
                 <button onClick={() => setShowAdminLogin(false)} className="absolute top-4 right-4 text-[#A39686] hover:text-white">&times;</button>
                 <h3 className="font-serif text-xl font-bold text-[#F5F0E6] mb-4">Brewer Unlock</h3>
                 <form onSubmit={handleLogin} className="space-y-4">
-                  <input type="password" value={pinInput} onChange={e => setPinInput(e.target.value)} placeholder="Enter PIN (1975)" className="w-full bg-[#12100E] border border-[#2C2520] rounded-lg p-3 text-center tracking-[0.5em] text-[#F5F0E6] outline-none" />
+                  <input type="password" value={pinInput} onChange={e => setPinInput(e.target.value)} placeholder="Enter PIN" className="w-full bg-[#12100E] border border-[#2C2520] rounded-lg p-3 text-center tracking-[0.5em] text-[#F5F0E6] outline-none" />
                   <button type="submit" className="w-full bg-[#2C2520] hover:bg-[#3C332A] text-[#F5F0E6] font-bold rounded-lg py-3">Unlock</button>
                 </form>
               </div>
