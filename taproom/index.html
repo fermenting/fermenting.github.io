@@ -33,7 +33,7 @@
     const { useState, useEffect } = React;
 
     // --- SVGs & Helpers ---
-    const BeerGlassSVG = ({ srm }) => {
+    const BeerGlassSVG = ({ srm, glassware }) => {
       const srmColors = {
         2: '#F8F096', 3: '#F2DF71', 4: '#EAD14F', 5: '#E1C233', 6: '#D5B01A', 
         7: '#C9A105', 8: '#B98D00', 9: '#AF8100', 10: '#A37400', 11: '#986800', 
@@ -42,11 +42,32 @@
         30: '#140000', 40: '#030000'
       };
       const hex = srmColors[Math.min(Math.round(srm || 4), 40)] || '#EAD14F';
+      
+      if (glassware === 'Nonic') {
+        return (
+          <svg width="100%" height="100%" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 2L4 6Q2 9 5 12L8 30H16L19 12Q22 9 20 6L19 2Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M2.7 8Q2 9 5 12L7.7 29H16.3L19 12Q22 9 21.3 8Z" fill={hex}/>
+            <path d="M5 2L4 6Q3.4 7.2 2.7 8H21.3Q20.6 7.2 20 6L19 2Z" fill="#F5F0E6" fillOpacity="0.9"/>
+          </svg>
+        );
+      }
+      
+      if (glassware === 'Chalice') {
+        return (
+          <svg width="100%" height="100%" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 2V8C4 18 11 20 11 20V30H7V32H17V30H13V20C13 20 20 18 20 8V2Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M4 8C4 17.5 10.5 19.2 11.5 19.2H12.5C13.5 19.2 20 17.5 20 8Z" fill={hex}/>
+            <path d="M4 2V8H20V2Z" fill="#F5F0E6" fillOpacity="0.9"/>
+          </svg>
+        );
+      }
+
       return (
         <svg width="100%" height="100%" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 2L2 30H22L20 2H4Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="2"/>
-          <path d="M5 8L3 29H21L19 8H5Z" fill={hex}/>
-          <path d="M4 2L5 8H19L20 2H4Z" fill="#F5F0E6"/>
+          <path d="M4 2L7 30H17L20 2Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M4.6 8L6.8 29H17.2L19.4 8Z" fill={hex}/>
+          <path d="M4 2L4.6 8H19.4L20 2Z" fill="#F5F0E6" fillOpacity="0.9"/>
         </svg>
       );
     };
@@ -64,7 +85,7 @@
         {
           Batch_ID: '001', URL_Slug: 'happy-hoppy-hopkins', Beer_Name: 'Happy Hoppy Hopkins',
           Subtitle_Style: 'Funky Wet Hop Belgian IPA', BJCP_Category: '21B/25C', Status: 'On Tap',
-          Tap_or_Slot: 'Tap 1', Serving_Format: 'Draft', ABV: '7.0%', IBU: '33', SRM: 14.1,
+          Tap_or_Slot: 'Tap 1', Serving_Format: 'Draft', ABV: '7.0%', IBU: '33', SRM: 14.1, Glassware: 'Chalice',
           Commercial_Description: 'A wild, funky ride. Wet hops fresh from the community garden layered over a Belgian Golden Strong base with Roeselare blend.',
           Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Whole-Cone Wet Hops, Yeast.',
           Allergen_Warning: 'Contains: Gluten (Malted Barley)',
@@ -74,7 +95,7 @@
         {
           Batch_ID: '002', URL_Slug: 'wet-hop-house-bitter', Beer_Name: 'Wet Hop House Bitter',
           Subtitle_Style: '2nd Partigyle English Bitter', BJCP_Category: '11B', Status: 'On Tap',
-          Tap_or_Slot: 'Tap 2', Serving_Format: 'Draft', ABV: '4.2%', IBU: '28', SRM: 9.5,
+          Tap_or_Slot: 'Tap 2', Serving_Format: 'Draft', ABV: '4.2%', IBU: '28', SRM: 9.5, Glassware: 'Nonic',
           Commercial_Description: 'The second runnings of our wet hop mash. A crushable, malt-forward pub ale with an expressive fresh-hop aroma.',
           Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Fresh Wet Hops, Yeast.',
           Allergen_Warning: 'Contains: Gluten (Malted Barley)',
@@ -84,7 +105,7 @@
         {
           Batch_ID: '003', URL_Slug: 'do-not-open-yet', Beer_Name: 'Do Not Open Yet',
           Subtitle_Style: 'English Barleywine', BJCP_Category: '17D', Status: 'The Cellar',
-          Tap_or_Slot: 'Cellar Reserve', Serving_Format: 'Bottle Conditioned', ABV: '11.3%', IBU: '55', SRM: 24,
+          Tap_or_Slot: 'Cellar Reserve', Serving_Format: 'Bottle Conditioned', ABV: '11.3%', IBU: '55', SRM: 24, Glassware: 'Chalice',
           Commercial_Description: 'A massive, complex barleywine. First runnings of a 3-way partigyle split. Needs years to peak.',
           Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast, Priming Sugar.',
           Allergen_Warning: 'Contains: Gluten (Malted Barley)',
@@ -95,7 +116,7 @@
         {
           Batch_ID: '004', URL_Slug: 'midlands', Beer_Name: 'Midlands',
           Subtitle_Style: 'English Strong Ale', BJCP_Category: '17A', Status: 'On Tap',
-          Tap_or_Slot: 'Tap 3', Serving_Format: 'Draft', ABV: '6.6%', IBU: '40', SRM: 18,
+          Tap_or_Slot: 'Tap 3', Serving_Format: 'Draft', ABV: '6.6%', IBU: '40', SRM: 18, Glassware: 'Nonic',
           Commercial_Description: 'Rich, caramel-driven, and balanced. The middle child of our massive English mash.',
           Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast.',
           Allergen_Warning: 'Contains: Gluten (Malted Barley)',
@@ -105,7 +126,7 @@
         {
           Batch_ID: '005', URL_Slug: 'wolfpack', Beer_Name: 'Wolfpack',
           Subtitle_Style: 'Smoked Amber Ale', BJCP_Category: '32A', Status: 'On Tap',
-          Tap_or_Slot: 'Tap 4', Serving_Format: 'Draft', ABV: '5.4%', IBU: '28', SRM: 16.5,
+          Tap_or_Slot: 'Tap 4', Serving_Format: 'Draft', ABV: '5.4%', IBU: '28', SRM: 16.5, Glassware: 'Pint',
           Commercial_Description: 'Steeped with smoked malt in the third runnings. Savory, malty, and incredibly drinkable.',
           Commercial_Ingredients_Disclosure: 'Water, Malted Barley (Smoked), Hops, Yeast.',
           Allergen_Warning: 'Contains: Gluten (Malted Barley)',
@@ -199,7 +220,7 @@
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-16 flex items-center justify-center opacity-90 group-hover:scale-110 transition-transform">
-                              <BeerGlassSVG srm={beer.SRM} />
+                              <BeerGlassSVG srm={beer.SRM} glassware={beer.Glassware} />
                             </div>
                             <div>
                               <div className="text-[10px] font-bold tracking-widest text-[#D9822B] uppercase mb-1">{beer.Tap_or_Slot}</div>
@@ -271,18 +292,19 @@
                 <button onClick={() => setSelectedBeer(null)} className="absolute top-4 right-4 z-10 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80">&times;</button>
                 <div className="overflow-y-auto hide-scrollbar p-6 sm:p-10">
                   <div className="flex gap-6 mb-6 items-start">
-                    <div className="w-16 h-24 flex-shrink-0"><BeerGlassSVG srm={selectedBeer.SRM} /></div>
+                    <div className="w-16 h-24 flex-shrink-0"><BeerGlassSVG srm={selectedBeer.SRM} glassware={selectedBeer.Glassware} /></div>
                     <div>
                       <div className="text-[10px] font-bold text-[#D9822B] uppercase tracking-widest mb-1">{selectedBeer.Tap_or_Slot}</div>
                       <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#F5F0E6] mb-1">{selectedBeer.Beer_Name}</h2>
                       <div className="text-[#A39686] font-medium">{selectedBeer.Subtitle_Style}</div>
                     </div>
                   </div>
-                  
+
+                  <p className="text-[#C2B6A7] leading-relaxed mb-8">{selectedBeer.Commercial_Description}</p>
+
                   <div className="border border-[#2C2520] rounded-xl p-5 mb-8 bg-[#12100E]">
-                    <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-3">Commercial Disclosure</h4>
-                    <p className="text-xs mb-2"><span className="text-[#A39686]">Ingredients:</span> <span className="text-[#E8E1D7]">{selectedBeer.Commercial_Ingredients_Disclosure}</span></p>
-                    <p className="text-xs"><span className="text-red-400 font-bold">ALLERGEN WARNING:</span> <span className="text-[#E8E1D7]">{selectedBeer.Allergen_Warning}</span></p>
+                    <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-3">Ingredients</h4>
+                    <p className="text-xs text-[#E8E1D7]">{selectedBeer.Commercial_Ingredients_Disclosure}</p>
                   </div>
 
                   {brewerAdmin && (
@@ -291,8 +313,6 @@
                       <p className="text-xs text-indigo-200">{selectedBeer.Private_Grist}</p>
                     </div>
                   )}
-
-                  <p className="text-[#C2B6A7] leading-relaxed">{selectedBeer.Commercial_Description}</p>
                 </div>
               </div>
             </div>
