@@ -3,369 +3,319 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Linden Street Brewhouse • Live Taproom & Cellar</title>
+  <title>Linden Street Brewhouse</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM (Development versions for standalone use) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for in-browser JSX transformation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
-    :root {
-      --bg: #12100e;
-      --bg-card: #1a1613;
-      --border: #362d26;
-      --text: #f5f0e6;
-      --muted: #a89e93;
-      --accent: #d9822b;
-      --accent-strong: #c06f1d;
-      --success-bg: #052e2b;
-      --success-text: #a7f3d0;
-      --danger-text: #fbbf24;
+    /* Hide scrollbar for clean horizontal scrolling tabs */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.5;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 32px 20px 60px;
-    }
-
-    .topbar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--success-bg);
-      color: var(--success-text);
-      border: 1px solid rgba(16,185,129,0.4);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      margin-bottom: 10px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #34d399;
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.4); opacity: 0.7; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
-    }
-
-    .subhead {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 0.02em;
-    }
-
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 18px;
-      border-radius: 12px;
-      background: var(--accent);
-      color: #12100e;
-      font-weight: 800;
-      font-size: 12px;
-      text-decoration: none;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      transition: background 0.2s ease;
-    }
-
-    .cta:hover {
-      background: var(--accent-strong);
-    }
-
-    #grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      margin-top: 28px;
-    }
-
-    .beer-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 10px 32px rgba(0,0,0,0.12);
-    }
-
-    .beer-card.highlight {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(217,130,43,0.35), 0 10px 32px rgba(0,0,0,0.15);
-    }
-
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .tap-pill {
-      display: inline-block;
-      background: var(--accent);
-      color: #12100e;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .stats {
-      color: var(--muted);
-      font-size: 12px;
-      font-family: "SFMono-Regular", Consolas, monospace;
-    }
-
-    .beer-name {
-      margin: 0;
-      font-size: clamp(1.4rem, 2vw, 2rem);
-      line-height: 1.2;
-    }
-
-    .beer-subtitle {
-      margin: 6px 0 0;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .beer-description {
-      margin: 14px 0 0;
-      color: #cfc6b9;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .details {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px solid #2a231e;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .details div + div {
-      margin-top: 8px;
-    }
-
-    .allergen {
-      color: var(--danger-text);
-      font-weight: 700;
-    }
-
-    .empty-state {
-      text-align: center;
-      color: var(--muted);
-      padding: 32px 20px;
-      border: 1px dashed var(--border);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    @media (max-width: 640px) {
-      .topbar {
-        align-items: flex-start;
-      }
-
-      .cta {
-        width: 100%;
-      }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <header class="topbar">
-      <div>
-        <div class="status-badge">
-          <span class="status-dot"></span>
-          Live Synced with Google Sheets
-        </div>
-        <h1>LINDEN STREET BREWHOUSE</h1>
-        <p class="subhead">Oakland, CA • Small-Batch Partigyle, Estate Wet Hops &amp; Vintage Cellar</p>
-      </div>
-      <a href="https://buymeacoffee.com" target="_blank" rel="noreferrer" class="cta">☕ Pitch In for Hops &amp; Malt</a>
-    </header>
+<body class="bg-[#12100E]">
+  <div id="root"></div>
 
-    <main id="grid" aria-live="polite"></main>
-  </div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-  <script>
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxsFKPAfFs7xNhw8wubgPpFMGC3x4EiXcV0iCiURcNRoAImZrkme1CBwD-5vCwlklD7/exec";
-
-    function asString(value, fallback = '') {
-      if (typeof value === 'string') return value;
-      if (typeof value === 'number') return String(value);
-      return fallback;
-    }
-
-    function asNumber(value, fallback = 0) {
-      const num = Number(value);
-      return Number.isFinite(num) ? num : fallback;
-    }
-
-    function normalizeBeer(raw) {
-      return {
-        id: asString(raw && raw.id, ''),
-        slug: asString(raw && raw.slug, ''),
-        name: asString(raw && raw.name, 'Untitled Beer'),
-        subtitle: asString(raw && raw.subtitle, ''),
-        status: asString(raw && raw.status, 'On Tap'),
-        tapSlot: asString(raw && raw.tapSlot, ''),
-        abv: asNumber(raw && raw.abv, 0),
-        ibu: asNumber(raw && raw.ibu, 0),
-        srm: asNumber(raw && raw.srm, 0),
-        description: asString(raw && raw.description, ''),
-        commercialIngredients: asString(raw && raw.commercialIngredients, ''),
-        allergenWarning: asString(raw && raw.allergenWarning, '')
+    // --- SVGs & Helpers ---
+    const BeerGlassSVG = ({ srm }) => {
+      const srmColors = {
+        2: '#F8F096', 3: '#F2DF71', 4: '#EAD14F', 5: '#E1C233', 6: '#D5B01A', 
+        7: '#C9A105', 8: '#B98D00', 9: '#AF8100', 10: '#A37400', 11: '#986800', 
+        12: '#8E5B00', 13: '#855100', 14: '#7C4600', 15: '#733D00', 16: '#693400', 
+        17: '#612C00', 18: '#592400', 19: '#521D00', 20: '#4B1600', 25: '#290600', 
+        30: '#140000', 40: '#030000'
       };
-    }
+      const hex = srmColors[Math.min(Math.round(srm || 4), 40)] || '#EAD14F';
+      return (
+        <svg width="100%" height="100%" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 2L2 30H22L20 2H4Z" fill="white" fillOpacity="0.1" stroke="#F5F0E6" strokeWidth="2"/>
+          <path d="M5 8L3 29H21L19 8H5Z" fill={hex}/>
+          <path d="M4 2L5 8H19L20 2H4Z" fill="#F5F0E6"/>
+        </svg>
+      );
+    };
 
-    function createBeerCard(beer, highlight) {
-      const article = document.createElement('article');
-      article.className = 'beer-card' + (highlight ? ' highlight' : '');
+    function App() {
+      const [activeTab, setActiveTab] = useState('taproom');
+      const [brewerAdmin, setBrewerAdmin] = useState(false);
+      const [selectedBeer, setSelectedBeer] = useState(null);
+      const [showAdminLogin, setShowAdminLogin] = useState(false);
+      const [pinInput, setPinInput] = useState('');
+      const [activePartigyle, setActivePartigyle] = useState(null);
 
-      const meta = document.createElement('div');
-      meta.className = 'meta-row';
-
-      const tap = document.createElement('span');
-      tap.className = 'tap-pill';
-      tap.textContent = beer.tapSlot || beer.status;
-
-      const stats = document.createElement('span');
-      stats.className = 'stats';
-      stats.textContent = `${beer.abv}% ABV • ${beer.ibu} IBU • ${beer.srm} SRM`;
-
-      meta.appendChild(tap);
-      meta.appendChild(stats);
-
-      const name = document.createElement('h2');
-      name.className = 'beer-name';
-      name.textContent = beer.name;
-
-      const subtitle = document.createElement('p');
-      subtitle.className = 'beer-subtitle';
-      subtitle.textContent = beer.subtitle;
-
-      const description = document.createElement('p');
-      description.className = 'beer-description';
-      description.textContent = beer.description;
-
-      const details = document.createElement('div');
-      details.className = 'details';
-
-      const ingredients = document.createElement('div');
-      ingredients.innerHTML = '<strong style="color: var(--text);">Ingredients:</strong> ' + (beer.commercialIngredients || 'Not listed');
-
-      const allergen = document.createElement('div');
-      allergen.className = 'allergen';
-      allergen.textContent = beer.allergenWarning || 'Allergen info not listed';
-
-      details.appendChild(ingredients);
-      details.appendChild(allergen);
-
-      article.appendChild(meta);
-      article.appendChild(name);
-      if (beer.subtitle) article.appendChild(subtitle);
-      article.appendChild(description);
-      article.appendChild(details);
-
-      return article;
-    }
-
-    function renderBeers(list) {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-
-      const params = new URLSearchParams(window.location.search);
-      const highlightSlug = params.get('beer');
-
-      if (!Array.isArray(list) || !list.length) {
-        const empty = document.createElement('div');
-        empty.className = 'empty-state';
-        empty.textContent = 'No beers available right now. Check back soon.';
-        grid.appendChild(empty);
-        return;
-      }
-
-      const normalized = list
-        .map(normalizeBeer)
-        .filter((beer) => beer.name && beer.name !== 'Untitled Beer');
-
-      normalized.forEach((beer) => {
-        const isHighlighted = highlightSlug && beer.slug === highlightSlug;
-        grid.appendChild(createBeerCard(beer, isHighlighted));
-      });
-    }
-
-    async function fetchJson(url) {
-      const response = await fetch(url, { cache: 'no-store' });
-      if (!response.ok) {
-        throw new Error('Failed to fetch ' + url);
-      }
-      return response.json();
-    }
-
-    async function loadBeers() {
-      try {
-        const localData = await fetchJson('./data/beers.json');
-        if (Array.isArray(localData) && localData.length) {
-          renderBeers(localData);
-          return;
+      // Inventory Data
+      const inventory = [
+        {
+          Batch_ID: '001', URL_Slug: 'happy-hoppy-hopkins', Beer_Name: 'Happy Hoppy Hopkins',
+          Subtitle_Style: 'Funky Wet Hop Belgian IPA', BJCP_Category: '21B/25C', Status: 'On Tap',
+          Tap_or_Slot: 'Tap 1', Serving_Format: 'Draft', ABV: '7.0%', IBU: '33', SRM: 14.1,
+          Commercial_Description: 'A wild, funky ride. Wet hops fresh from the community garden layered over a Belgian Golden Strong base with Roeselare blend.',
+          Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Whole-Cone Wet Hops, Yeast.',
+          Allergen_Warning: 'Contains: Gluten (Malted Barley)',
+          Partigyle_Group: 'Wet Hop Partigyle (Gyle 1)',
+          Private_Grist: '57.7% Extra Pale 2-Row, 26.4% Belgian Pilsner, 7.9% Munich Light, 5.4% Special B'
+        },
+        {
+          Batch_ID: '002', URL_Slug: 'wet-hop-house-bitter', Beer_Name: 'Wet Hop House Bitter',
+          Subtitle_Style: '2nd Partigyle English Bitter', BJCP_Category: '11B', Status: 'On Tap',
+          Tap_or_Slot: 'Tap 2', Serving_Format: 'Draft', ABV: '4.2%', IBU: '28', SRM: 9.5,
+          Commercial_Description: 'The second runnings of our wet hop mash. A crushable, malt-forward pub ale with an expressive fresh-hop aroma.',
+          Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Fresh Wet Hops, Yeast.',
+          Allergen_Warning: 'Contains: Gluten (Malted Barley)',
+          Partigyle_Group: 'Wet Hop Partigyle (Gyle 2)',
+          Private_Grist: 'Second runnings of 38.1 lb master mash.'
+        },
+        {
+          Batch_ID: '003', URL_Slug: 'do-not-open-yet', Beer_Name: 'Do Not Open Yet',
+          Subtitle_Style: 'English Barleywine', BJCP_Category: '17D', Status: 'The Cellar',
+          Tap_or_Slot: 'Cellar Reserve', Serving_Format: 'Bottle Conditioned', ABV: '11.3%', IBU: '55', SRM: 24,
+          Commercial_Description: 'A massive, complex barleywine. First runnings of a 3-way partigyle split. Needs years to peak.',
+          Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast, Priming Sugar.',
+          Allergen_Warning: 'Contains: Gluten (Malted Barley)',
+          Cellar_Format_and_Aging_Notes: 'Hold until Winter 2027–2030. Cellar at 55°F.',
+          Partigyle_Group: 'English 3-Way (Gyle 1)',
+          Private_Grist: 'First runnings of 51.8 lb master mash. OG: 1.108.'
+        },
+        {
+          Batch_ID: '004', URL_Slug: 'midlands', Beer_Name: 'Midlands',
+          Subtitle_Style: 'English Strong Ale', BJCP_Category: '17A', Status: 'On Tap',
+          Tap_or_Slot: 'Tap 3', Serving_Format: 'Draft', ABV: '6.6%', IBU: '40', SRM: 18,
+          Commercial_Description: 'Rich, caramel-driven, and balanced. The middle child of our massive English mash.',
+          Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Hops, Yeast.',
+          Allergen_Warning: 'Contains: Gluten (Malted Barley)',
+          Partigyle_Group: 'English 3-Way (Gyle 2)',
+          Private_Grist: 'Middle runnings of 51.8 lb master mash.'
+        },
+        {
+          Batch_ID: '005', URL_Slug: 'wolfpack', Beer_Name: 'Wolfpack',
+          Subtitle_Style: 'Smoked Amber Ale', BJCP_Category: '32A', Status: 'On Tap',
+          Tap_or_Slot: 'Tap 4', Serving_Format: 'Draft', ABV: '5.4%', IBU: '28', SRM: 16.5,
+          Commercial_Description: 'Steeped with smoked malt in the third runnings. Savory, malty, and incredibly drinkable.',
+          Commercial_Ingredients_Disclosure: 'Water, Malted Barley (Smoked), Hops, Yeast.',
+          Allergen_Warning: 'Contains: Gluten (Malted Barley)',
+          Partigyle_Group: 'English 3-Way (Gyle 3)',
+          Private_Grist: 'Third runnings of 51.8 lb master mash + Smoked Malt steep.'
         }
-      } catch (error) {
-        console.warn('Local tap list unavailable:', error);
-      }
+      ];
 
-      try {
-        const remoteData = await fetchJson(WEBHOOK_URL);
-        const remoteBeers = Array.isArray(remoteData) ? remoteData : (remoteData && Array.isArray(remoteData.beers) ? remoteData.beers : []);
-        renderBeers(remoteBeers);
-      } catch (error) {
-        console.error('Unable to load beer data:', error);
-        renderBeers([]);
-      }
+      const activeBeers = inventory.filter(b => b.Status === 'On Tap');
+      const cellarBeers = inventory.filter(b => b.Status === 'The Cellar');
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (pinInput === '1975' || pinInput === 'demo') {
+          setBrewerAdmin(true);
+          setShowAdminLogin(false);
+          setPinInput('');
+        } else {
+          setPinInput('');
+        }
+      };
+
+      return (
+        <div className="min-h-screen text-[#F5F0E6] font-sans selection:bg-[#D9822B] selection:text-white">
+          <header className="border-b border-[#2C2520] bg-[#1A1613] sticky top-0 z-40">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#D9822B] flex items-center justify-center font-serif text-xl font-bold text-[#12100E]">LS</div>
+                <div>
+                  <h1 className="font-serif text-xl font-bold tracking-tight text-[#F5F0E6]">Linden Street</h1>
+                  <div className="text-[10px] tracking-[0.2em] text-[#A39686] uppercase font-semibold">Brewhouse</div>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <button onClick={() => setShowAdminLogin(true)} className="text-[#A39686] text-xs font-bold uppercase tracking-wider hover:text-white transition-colors">
+                  {brewerAdmin ? '🔓 Admin' : '🔒 Login'}
+                </button>
+              </div>
+            </div>
+            
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto hide-scrollbar border-t border-[#2C2520]">
+              {['taproom', 'cellar', 'brewhouse', ...(brewerAdmin ? ['labels'] : [])].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-5 py-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap border-b-2 transition-colors ${
+                    activeTab === tab ? 'border-[#D9822B] text-[#D9822B]' : 'border-transparent text-[#8E8275] hover:text-[#C2B6A7]'
+                  }`}
+                >
+                  {tab === 'taproom' ? 'On Tap' : tab === 'labels' ? '🖨️ QR Studio' : tab}
+                </button>
+              ))}
+            </div>
+          </header>
+
+          <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            {activeTab === 'taproom' && (
+              <div className="space-y-10">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  <div>
+                    <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">Currently Pouring</h2>
+                    <p className="text-[#A39686] text-sm mt-1">Live from the draft system.</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setActivePartigyle(activePartigyle === 'Wet Hop Partigyle' ? null : 'Wet Hop Partigyle')}
+                      className={`text-[10px] font-bold uppercase px-3 py-1.5 rounded-full border transition-colors ${activePartigyle === 'Wet Hop Partigyle' ? 'bg-[#D9822B] text-[#12100E] border-[#D9822B]' : 'bg-[#1A1613] text-[#A39686] border-[#2C2520]'}`}
+                    >
+                      Highlight: Wet Hop Split
+                    </button>
+                    <button 
+                      onClick={() => setActivePartigyle(activePartigyle === 'English 3-Way' ? null : 'English 3-Way')}
+                      className={`text-[10px] font-bold uppercase px-3 py-1.5 rounded-full border transition-colors ${activePartigyle === 'English 3-Way' ? 'bg-[#D9822B] text-[#12100E] border-[#D9822B]' : 'bg-[#1A1613] text-[#A39686] border-[#2C2520]'}`}
+                    >
+                      Highlight: 3-Way English
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {activeBeers.map(beer => {
+                    const isHighlighted = activePartigyle && beer.Partigyle_Group?.includes(activePartigyle);
+                    const isFaded = activePartigyle && !isHighlighted;
+                    
+                    return (
+                      <div 
+                        key={beer.Batch_ID} 
+                        onClick={() => setSelectedBeer(beer)}
+                        className={`bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 cursor-pointer hover:border-[#D9822B] transition-all group ${isFaded ? 'opacity-30 grayscale' : ''} ${isHighlighted ? 'ring-1 ring-[#D9822B]' : ''}`}
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-16 flex items-center justify-center opacity-90 group-hover:scale-110 transition-transform">
+                              <BeerGlassSVG srm={beer.SRM} />
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-bold tracking-widest text-[#D9822B] uppercase mb-1">{beer.Tap_or_Slot}</div>
+                              <h3 className="font-serif text-xl font-bold text-[#F5F0E6] group-hover:text-[#D9822B] transition-colors">{beer.Beer_Name}</h3>
+                              <div className="text-sm text-[#A39686]">{beer.Subtitle_Style}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-[#F5F0E6]">{beer.ABV}</div>
+                            <div className="text-[10px] text-[#8E8275] uppercase tracking-wider">ABV</div>
+                          </div>
+                        </div>
+                        {beer.Partigyle_Group && (
+                          <div className="inline-block bg-[#12100E] border border-[#2C2520] rounded px-2 py-1 text-[10px] text-[#A39686] uppercase mb-4">
+                            🧬 {beer.Partigyle_Group}
+                          </div>
+                        )}
+                        <p className="text-sm text-[#C2B6A7] line-clamp-2">{beer.Commercial_Description}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'cellar' && (
+              <div className="space-y-10">
+                <div>
+                  <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">The Cellar</h2>
+                  <p className="text-[#A39686] text-sm mt-1">Bottle-conditioned and vintage releases.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {cellarBeers.map(beer => (
+                    <div key={beer.Batch_ID} onClick={() => setSelectedBeer(beer)} className="bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 cursor-pointer hover:border-[#D9822B] transition-all group">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="text-[10px] font-bold tracking-widest text-[#A39686] uppercase mb-1">Vintage Reserve</div>
+                          <h3 className="font-serif text-2xl font-bold text-[#F5F0E6] group-hover:text-[#D9822B] transition-colors">{beer.Beer_Name}</h3>
+                          <div className="text-sm text-[#D9822B] font-semibold">{beer.Subtitle_Style}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xl font-bold text-[#F5F0E6]">{beer.ABV}</div>
+                          <div className="text-[10px] text-[#8E8275] uppercase tracking-wider">ABV</div>
+                        </div>
+                      </div>
+                      <div className="bg-[#12100E] rounded-lg p-3 border border-[#2C2520] mb-4">
+                        <div className="text-[10px] text-[#D9822B] font-bold uppercase mb-1">Cellarmaster Notes</div>
+                        <div className="text-xs text-[#A39686]">{beer.Cellar_Format_and_Aging_Notes}</div>
+                      </div>
+                      <p className="text-sm text-[#C2B6A7]">{beer.Commercial_Description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'brewhouse' && (
+              <div className="bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 sm:p-8 space-y-4">
+                <span className="text-xs font-mono uppercase tracking-widest text-[#D9822B]">Philosophy & Pedigree</span>
+                <h1 className="font-serif text-3xl font-bold text-[#F5F0E6]">Commercial Discipline. Homegrown Soul.</h1>
+                <p className="text-sm text-[#C2B6A7] leading-relaxed">Trained in professional brewing operations and quality control, Linden Street Brewhouse applies commercial wort production, water chemistry adjustment, and multi-vessel partigyle mashing to small-batch artisan releases.</p>
+              </div>
+            )}
+          </main>
+
+          {selectedBeer && (
+            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" onClick={() => setSelectedBeer(null)}>
+              <div className="w-full max-w-2xl bg-[#1A1613] border border-[#2C2520] rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                <button onClick={() => setSelectedBeer(null)} className="absolute top-4 right-4 z-10 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80">&times;</button>
+                <div className="overflow-y-auto hide-scrollbar p-6 sm:p-10">
+                  <div className="flex gap-6 mb-6 items-start">
+                    <div className="w-16 h-24 flex-shrink-0"><BeerGlassSVG srm={selectedBeer.SRM} /></div>
+                    <div>
+                      <div className="text-[10px] font-bold text-[#D9822B] uppercase tracking-widest mb-1">{selectedBeer.Tap_or_Slot}</div>
+                      <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#F5F0E6] mb-1">{selectedBeer.Beer_Name}</h2>
+                      <div className="text-[#A39686] font-medium">{selectedBeer.Subtitle_Style}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="border border-[#2C2520] rounded-xl p-5 mb-8 bg-[#12100E]">
+                    <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-3">Commercial Disclosure</h4>
+                    <p className="text-xs mb-2"><span className="text-[#A39686]">Ingredients:</span> <span className="text-[#E8E1D7]">{selectedBeer.Commercial_Ingredients_Disclosure}</span></p>
+                    <p className="text-xs"><span className="text-red-400 font-bold">ALLERGEN WARNING:</span> <span className="text-[#E8E1D7]">{selectedBeer.Allergen_Warning}</span></p>
+                  </div>
+
+                  {brewerAdmin && (
+                    <div className="border border-indigo-900/50 rounded-xl p-5 mb-8 bg-indigo-950/20">
+                      <h4 className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-3">🔒 Private Brew Log</h4>
+                      <p className="text-xs text-indigo-200">{selectedBeer.Private_Grist}</p>
+                    </div>
+                  )}
+
+                  <p className="text-[#C2B6A7] leading-relaxed">{selectedBeer.Commercial_Description}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showAdminLogin && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+              <div className="w-full max-w-sm bg-[#1A1613] border border-[#2C2520] rounded-2xl p-6 relative">
+                <button onClick={() => setShowAdminLogin(false)} className="absolute top-4 right-4 text-[#A39686] hover:text-white">&times;</button>
+                <h3 className="font-serif text-xl font-bold text-[#F5F0E6] mb-4">Brewer Unlock</h3>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <input type="password" value={pinInput} onChange={e => setPinInput(e.target.value)} placeholder="Enter PIN (1975)" className="w-full bg-[#12100E] border border-[#2C2520] rounded-lg p-3 text-center tracking-[0.5em] text-[#F5F0E6] outline-none" />
+                  <button type="submit" className="w-full bg-[#2C2520] hover:bg-[#3C332A] text-[#F5F0E6] font-bold rounded-lg py-3">Unlock</button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
     }
 
-    loadBeers();
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
