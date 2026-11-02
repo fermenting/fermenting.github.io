@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fermenting Life — Brewhouse & Taproom</title>
+    <title>Fermenting Life — Nanobrewery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -150,25 +150,36 @@
             }
         ];
 
-        function GlassIcon({ type }) {
+        // Rich SVG Glass Icon with beer color fill & frothy head
+        function GlassIllustration({ type }) {
             const cleanType = (type || "Pint").trim().toLowerCase();
             if (cleanType.includes("chalice") || cleanType.includes("globe")) {
                 return (
-                    <svg className="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="currentColor" title="Chalice">
-                        <path d="M5 3h14v2c0 3.31-2.69 6-6 6h-2c-3.31 0-6-2.69-6-6V3zm6 9h2c2.76 0 5 2.24 5 5v1h-12v-1c0-2.76 2.24-5 5-5zm-1 7h4v4h-4v-4z"/>
+                    <svg className="w-12 h-16 text-amber-500 drop-shadow-md" viewBox="0 0 64 64" fill="none">
+                        <path d="M16 12H48C48 24 40 32 32 32C24 32 16 24 16 12Z" fill="#d97706" opacity="0.9"/>
+                        <path d="M18 10H46C45 6 40 4 32 4C24 4 19 6 18 10Z" fill="#fef3c7"/>
+                        <path d="M16 12H48C48 24 40 32 32 32C24 32 16 24 16 12Z" stroke="#f5f2eb" strokeWidth="2.5" strokeLinecap="round"/>
+                        <path d="M32 32V50" stroke="#f5f2eb" strokeWidth="3" strokeLinecap="round"/>
+                        <path d="M22 52H42" stroke="#f5f2eb" strokeWidth="3" strokeLinecap="round"/>
                     </svg>
                 );
             }
             if (cleanType.includes("nonic")) {
                 return (
-                    <svg className="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="currentColor" title="Nonic Pint">
-                        <path d="M7 3h10l-1.5 14h-7L7 3zm1.2 2l1.1 10h4.4l1.1-10H8.2zM6 19h12v2H6v-2z"/>
+                    <svg className="w-12 h-16 text-amber-500 drop-shadow-md" viewBox="0 0 64 64" fill="none">
+                        <path d="M20 12H44L41 50H23L20 12Z" fill="#b45309" opacity="0.9"/>
+                        <path d="M20 12H44C44 15 42 16 32 16C22 16 20 15 20 12Z" fill="#fef3c7"/>
+                        <path d="M20 12H44L41 50H23L20 12Z" stroke="#f5f2eb" strokeWidth="2.5" strokeLinejoin="round"/>
+                        <path d="M21 52H43" stroke="#f5f2eb" strokeWidth="3" strokeLinecap="round"/>
                     </svg>
                 );
             }
             return (
-                <svg className="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="currentColor" title="Pint Glass">
-                    <path d="M7 3h10l-1 16H8L7 3zm1.5 2l.75 12h5.5l.75-12H8.5zM6 20h12v2H6v-2z"/>
+                <svg className="w-12 h-16 text-amber-500 drop-shadow-md" viewBox="0 0 64 64" fill="none">
+                    <path d="M21 12H43L40 50H24L21 12Z" fill="#d97706" opacity="0.9"/>
+                    <path d="M21 12H43C43 15 41 16 32 16C23 16 21 15 21 12Z" fill="#fef3c7"/>
+                    <path d="M21 12H43L40 50H24L21 12Z" stroke="#f5f2eb" strokeWidth="2.5" strokeLinejoin="round"/>
+                    <path d="M22 52H42" stroke="#f5f2eb" strokeWidth="3" strokeLinecap="round"/>
                 </svg>
             );
         }
@@ -264,15 +275,17 @@
                         <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full border border-amber-600/50 flex items-center justify-center bg-black/40">
-                                    <svg className="w-7 h-7 text-amber-500" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="6">
+                                    {/* Corrected Monogram AF Logo with bottom horizontal crossbar */}
+                                    <svg className="w-8 h-8 text-amber-500" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round">
                                         <line x1="50" y1="10" x2="50" y2="90" />
-                                        <line x1="50" y1="50" x2="90" y2="50" />
                                         <line x1="20" y1="80" x2="50" y2="50" />
+                                        <line x1="50" y1="50" x2="85" y2="50" />
+                                        <line x1="38" y1="68" x2="62" y2="68" />
                                     </svg>
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-serif font-bold text-amber-500 tracking-wide">Fermenting Life</h1>
-                                    <p className="text-xs uppercase tracking-widest text-stone-400">Brewhouse & Taproom • Oakland, CA</p>
+                                    <p className="text-xs uppercase tracking-widest text-stone-400">Nanobrewery • Oakland, CA</p>
                                 </div>
                             </div>
 
@@ -324,7 +337,7 @@
                                                         <h3 className="text-xl font-serif font-bold text-white mt-2">{beer.name}</h3>
                                                         <p className="text-xs text-stone-400">{beer.style} • {beer.abv}</p>
                                                     </div>
-                                                    <GlassIcon type={beer.glassware} />
+                                                    <GlassIllustration type={beer.glassware} />
                                                 </div>
                                             </div>
                                             <button
@@ -357,17 +370,14 @@
                                             <div>
                                                 <div className="flex justify-between items-start mb-3">
                                                     <div>
-                                                        <span className="text-xs font-semibold uppercase tracking-wider bg-amber-600/20 text-amber-400 px-2.5 py-1 rounded-md">
-                                                            {beer.tap} • {beer.abv} ABV
-                                                        </span>
-                                                        <h3 className="text-2xl font-serif font-bold text-white mt-2">{beer.name}</h3>
-                                                        <p className="text-stone-400 text-sm">{beer.style}</p>
+                                                        <h3 className="text-2xl font-serif font-bold text-white mt-1">{beer.name}</h3>
+                                                        <p className="text-stone-400 text-sm mt-0.5">{beer.style}</p>
                                                     </div>
-                                                    <GlassIcon type={beer.glassware} />
+                                                    <GlassIllustration type={beer.glassware} />
                                                 </div>
                                             </div>
                                             <div className="mt-6 pt-4 border-t border-stone-800 flex justify-between items-center text-xs text-stone-400">
-                                                <span>IBU: {beer.ibu} | SRM: {beer.srm}</span>
+                                                <span>ABV: {beer.abv} | IBU: {beer.ibu} | SRM: {beer.srm}</span>
                                                 <span className="text-amber-500 font-medium hover:underline">View Details & Photos →</span>
                                             </div>
                                         </div>
