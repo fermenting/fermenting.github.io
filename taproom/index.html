@@ -84,7 +84,7 @@
                                     vessel: b.Vessel_Log || "Primary Fermenter"
                                 },
                                 images: b.imagesString ? b.imagesString.split(',').map(s => s.trim()) : ["https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=800&q=80"],
-                                googlePhotosUrl: b.googlePhotosUrl || b.photos || ""
+                                googlePhotosUrl: b.googlePhotosUrl || b.photos || b.Google_Photos_URL || ""
                             }));
                             setBeers(mapped);
                         } else {
@@ -103,7 +103,6 @@
                 e.preventDefault();
                 setSubmitting(true);
                 
-                // POST rating to Google Sheet Web App
                 fetch(GOOGLE_APPS_SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
@@ -309,7 +308,7 @@
                                             href={selectedBeer.googlePhotosUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="block w-full py-3 bg-stone-800 hover:bg-stone-700 text-amber-400 text-center rounded-xl font-semibold text-sm border border-stone-700 transition"
+                                            className="block w-full py-3 bg-stone-800 hover:bg-stone-700 text-amber-400 text-center rounded-xl font-semibold text-sm border border-stone-700 transition flex items-center justify-center gap-2"
                                         >
                                             📸 View Shared Google Photos Album / Add Your Pictures
                                         </a>
