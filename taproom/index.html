@@ -281,3 +281,9 @@
                                                             <div>
                                                                 <h3 className="text-2xl font-serif font-bold text-white mt-1">{beer.name}</h3>
                                                                 <p className="text-stone-400 text-sm mt-0.5">{beer.style}</p>
+                                                            </div>
+                                                            <GlassIllustration type={beer.glassware} />
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-6 pt-4 border-t border-stone-800 flex justify-between items-center text-xs text-stone-400">
+                                                        <span>ABV: {beer.abv}
