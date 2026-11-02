@@ -191,7 +191,6 @@
         function App() {
             const [beers, setBeers] = useState(FALLBACK_BEERS);
             const [aboutSections, setAboutSections] = useState(FALLBACK_ABOUT_SECTIONS);
-            const [loading, setLoading] = useState(true);
             const [activeTab, setActiveTab] = useState("taproom");
             const [selectedBeer, setSelectedBeer] = useState(null);
             const [ratingForm, setRatingForm] = useState({ name: "", rating: 5, comment: "" });
@@ -199,294 +198,33 @@
             const [successMsg, setSuccessMsg] = useState("");
 
             useEffect(() => {
-                setLoading(true);
                 fetch(GOOGLE_APPS_SCRIPT_URL)
                     .then(res => res.json())
                     .then(data => {
-                        // Handle beers inventory
-                        if (data && Array.isArray(data.beers || data)) {
-                            const rawBeers = Array.isArray(data.beers) ? data.beers : data;
-                            const mapped = rawBeers.map(b => ({
-                                id: b.URL_Slug || b.Beer_Name?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                                name: b.Beer_Name || "Unnamed Beer",
-                                style: b.Subtitle_Style || "Craft Beer",
-                                bjcp: b.BJCP_Category || "Standard",
-                                status: b.Status || "On Tap",
-                                tap: b.Tap_or_Slot || "Draft",
-                                format: b.Serving_Format || "Draft",
-                                abv: b.ABV || "5.0%",
-                                ibu: b.IBU || "20",
-                                srm: b.SRM || "10 SRM",
-                                glassware: b.Glassware || "Pint",
-                                description: b.Commercial_Description || "",
-                                brewLog: {
-                                    grist: b.Exact_Grist || "Proprietary Grain Bill",
-                                    hops: b.Hop_Schedule || "Standard Hop Schedule",
-                                    water: b.Water_Chemistry || "Adjusted Water Profile",
-                                    yeast: b.Yeast_Strain || "Selected Ale Strain",
-                                    vessel: b.Vessel_Log || "Primary Fermenter"
-                                },
-                                images: b.imagesString ? b.imagesString.split(',').map(s => s.trim()) : ["https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=800&q=80"],
-                                googlePhotosUrl: b.googlePhotosUrl || b.photos || b.Google_Photos_URL || ""
-                            }));
-                            setBeers(mapped);
-                        }
-
-                        // Handle About tab sections from sheet if available
-                        if (data && Array.isArray(data.about)) {
-                            const mappedAbout = data.about.map(a => ({
-                                header: a.Header || a.header || "",
-                                detail: a.Detail || a.detail || ""
-                            })).filter(a => a.header || a.detail);
-                            if (mappedAbout.length > 0) {
-                                setAboutSections(mappedAbout);
-                            }
-                        }
-
-                        setLoading(false);
-                    })
-                    .catch(err => {
-                        console.warn("Using local fallback data:", err);
-                        setLoading(false);
-                    });
-            }, []);
-
-            const handleRatingSubmit = (e) => {
-                e.preventDefault();
-                setSubmitting(true);
-                
-                fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "logRating",
-                        beerId: selectedBeer?.id,
-                        beerName: selectedBeer?.name,
-                        guestName: ratingForm.name,
-                        rating: ratingForm.rating,
-                        comment: ratingForm.comment
-                    })
-                })
-                .then(() => {
-                    setSubmitting(false);
-                    setSuccessMsg("Thanks! Your tasting notes were logged successfully.");
-                    setRatingForm({ name: "", rating: 5, comment: "" });
-                    setTimeout(() => setSuccessMsg(""), 4000);
-                })
-                .catch(() => {
-                    setSubmitting(false);
-                    setSuccessMsg("Review logged!");
-                    setTimeout(() => setSuccessMsg(""), 4000);
-                });
-            };
-
-            const filteredBeers = beers.filter(b => {
-                if (activeTab === "taproom") return b.status.toLowerCase().includes("on tap");
-                if (activeTab === "cellar") return b.status.toLowerCase().includes("cellar") || b.status.toLowerCase().includes("bottle");
-                return true;
-            });
-
-            return (
-                <div className="min-h-screen bg-[#12100e] text-[#f5f2eb] flex flex-col">
-                    <header className="border-b border-[#2d2620] bg-[#191511] sticky top-0 z-40">
-                        <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full border border-amber-600/50 flex items-center justify-center bg-black/40">
-                                    <svg className="w-8 h-8 text-amber-500" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="50" y1="10" x2="50" y2="90" />
-                                        <line x1="20" y1="80" x2="50" y2="50" />
-                                        <line x1="50" y1="50" x2="85" y2="50" />
-                                        <line x1="38" y1="68" x2="62" y2="68" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-serif font-bold text-amber-500 tracking-wide">Fermenting Life</h1>
-                                    <p className="text-xs uppercase tracking-widest text-stone-400">Nanobrewery • Oakland, CA</p>
-                                </div>
-                            </div>
-
-                            <nav className="flex gap-2 bg-[#241e17] p-1 rounded-xl border border-stone-800">
-                                {["taproom", "cellar", "about"].map((tab) => (
-                                    <button
-                                        key={tab}
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition ${
-                                            activeTab === tab ? "bg-amber-600 text-white shadow" : "text-stone-400 hover:text-stone-200"
-                                        }`}
-                                    >
-                                        {tab}
-                                    </button>
-                                ))}
-                            </nav>
-                        </div>
-                    </header>
-
-                    <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
-                        {activeTab === "about" ? (
-                            <div className="space-y-8 max-w-3xl mx-auto">
-                                <div className="bg-[#1a1511] border border-[#2d2620] rounded-2xl p-8 shadow-xl space-y-6">
-                                    {aboutSections.map((sec, idx) => (
-                                        <div key={idx} className={idx > 0 ? "pt-6 border-t border-stone-800/80" : ""}>
-                                            <h2 className="text-2xl font-serif text-amber-500 mb-3">{sec.header}</h2>
-                                            <p className="text-stone-300 leading-relaxed text-sm md:text-base">{sec.detail}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                <div className="flex justify-between items-center mb-6">
-                                    <div>
-                                        <h2 className="text-3xl font-serif text-amber-500 capitalize">{activeTab} Pours</h2>
-                                        <p className="text-stone-400 text-sm">Taproom inventory and small-batch cellar releases.</p>
-                                    </div>
-                                    <span className="text-xs font-mono bg-stone-800 text-stone-300 px-3 py-1 rounded-full">{filteredBeers.length} Batches</span>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {filteredBeers.map((beer) => (
-                                        <div
-                                            key={beer.id}
-                                            onClick={() => setSelectedBeer(beer)}
-                                            className="bg-[#191511] border border-[#2d2620] hover:border-amber-600/50 rounded-2xl p-6 cursor-pointer transition shadow-lg flex flex-col justify-between"
-                                        >
-                                            <div>
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div>
-                                                        <h3 className="text-2xl font-serif font-bold text-white mt-1">{beer.name}</h3>
-                                                        <p className="text-stone-400 text-sm mt-0.5">{beer.style}</p>
-                                                    </div>
-                                                    <GlassIllustration type={beer.glassware} />
-                                                </div>
-                                            </div>
-                                            <div className="mt-6 pt-4 border-t border-stone-800 flex justify-between items-center text-xs text-stone-400">
-                                                <span>ABV: {beer.abv} | IBU: {beer.ibu} | SRM: {beer.srm}</span>
-                                                <span className="text-amber-500 font-medium hover:underline">View Details & Photos →</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </main>
-
-                    {/* Beer Detail Modal with Backdrop Click-to-Close */}
-                    {selectedBeer && (
-                        <div 
-                            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
-                            onClick={() => setSelectedBeer(null)}
-                        >
-                            <div 
-                                className="bg-[#191511] border border-[#2d2620] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 relative shadow-2xl"
-                                onClick={e => e.stopPropagation()}
-                            >
-                                <button
-                                    onClick={() => setSelectedBeer(null)}
-                                    className="absolute top-6 right-6 text-stone-400 hover:text-white bg-stone-800/80 w-8 h-8 rounded-full flex items-center justify-center text-lg transition"
-                                >
-                                    ✕
-                                </button>
-
-                                <div className="flex items-start gap-4 mb-6">
-                                    <div>
-                                        <span className="text-xs font-semibold uppercase bg-amber-600/20 text-amber-400 px-3 py-1 rounded-md">
-                                            {selectedBeer.tap} • {selectedBeer.abv} ABV • {selectedBeer.ibu} IBU • {selectedBeer.srm}
-                                        </span>
-                                        <h2 className="text-3xl font-serif font-bold text-white mt-2">{selectedBeer.name}</h2>
-                                        <p className="text-stone-400 text-sm">{selectedBeer.style} &bull; BJCP: {selectedBeer.bjcp}</p>
-                                    </div>
-                                </div>
-
-                                {selectedBeer.description && (
-                                    <div className="mb-6 bg-[#211a14] border border-stone-800/60 p-4 rounded-xl">
-                                        <p className="text-stone-200 text-sm leading-relaxed">{selectedBeer.description}</p>
-                                    </div>
-                                )}
-
-                                {selectedBeer.images && selectedBeer.images.length > 0 && (
-                                    <div className="mb-6 space-y-3 pt-4 border-t border-stone-800/80">
-                                        <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500">Brewery Gallery</h4>
-                                        <div className="rounded-xl overflow-hidden h-64 border border-stone-800 bg-black/40">
-                                            <img src={selectedBeer.images[0]} alt={selectedBeer.name} className="w-full h-full object-cover" />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {selectedBeer.googlePhotosUrl && (
-                                    <div className="mb-6">
-                                        <a
-                                            href={selectedBeer.googlePhotosUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block w-full py-3 bg-stone-800 hover:bg-stone-700 text-amber-400 text-center rounded-xl font-semibold text-sm border border-stone-700 transition flex items-center justify-center gap-2 shadow"
-                                        >
-                                            📸 View Shared Google Photos Album / Add Your Pictures
-                                        </a>
-                                    </div>
-                                )}
-
-                                <div className="mb-6 bg-[#14110e] border border-[#2d2620] p-5 rounded-xl space-y-3 pt-4 border-t border-stone-800/80">
-                                    <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500">Brewer's Technical Spec Sheet</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-stone-300">
-                                        <div><strong className="text-stone-400">Grist:</strong> {selectedBeer.brewLog.grist}</div>
-                                        <div><strong className="text-stone-400">Hops:</strong> {selectedBeer.brewLog.hops}</div>
-                                        <div><strong className="text-stone-400">Water / Salts:</strong> {selectedBeer.brewLog.water}</div>
-                                        <div><strong className="text-stone-400">Yeast:</strong> {selectedBeer.brewLog.yeast}</div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-[#14110e] border border-[#2d2620] p-5 rounded-xl pt-4 border-t border-stone-800/80">
-                                    <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-3">Log Your Tasting Notes</h4>
-                                    {successMsg && <div className="mb-3 p-3 bg-emerald-950 text-emerald-300 text-xs rounded-lg">{successMsg}</div>}
-                                    <form onSubmit={handleRatingSubmit} className="space-y-3">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <input
-                                                type="text"
-                                                placeholder="Your Name / Nickname"
-                                                value={ratingForm.name}
-                                                onChange={e => setRatingForm({...ratingForm, name: e.target.value})}
-                                                className="bg-[#1f1913] border border-stone-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-600"
-                                                required
-                                            />
-                                            <select
-                                                value={ratingForm.rating}
-                                                onChange={e => setRatingForm({...ratingForm, rating: e.target.value})}
-                                                className="bg-[#1f1913] border border-stone-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-600"
-                                            >
-                                                <option value="5">★★★★★ (5/5 Pints)</option>
-                                                <option value="4">★★★★☆ (4/5 Pints)</option>
-                                                <option value="3">★★★☆☆ (3/5 Pints)</option>
-                                                <option value="2">★★☆☆☆ (2/5 Pints)</option>
-                                                <option value="1">★☆☆☆☆ (1/5 Pints)</option>
-                                            </select>
-                                        </div>
-                                        <textarea
-                                            placeholder="Tasting notes, aroma, or comments..."
-                                            value={ratingForm.comment}
-                                            onChange={e => setRatingForm({...ratingForm, comment: e.target.value})}
-                                            className="w-full bg-[#1f1913] border border-stone-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-600 h-20 resize-none"
-                                            required
-                                        ></textarea>
-                                        <button
-                                            type="submit"
-                                            disabled={submitting}
-                                            className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-semibold text-sm transition"
-                                        >
-                                            {submitting ? "Submitting..." : "Submit Tasting Review"}
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    <footer className="border-t border-[#2d2620] bg-[#191511] py-6 mt-12 text-center text-xs text-stone-500">
-                        <p>© 2026 Fermenting Life • Handcrafted in Oakland, CA</p>
-                    </footer>
-                </div>
-            );
-        }
-
-        ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
-</body>
-</html>
+                        if (data) {
+                            const rawBeers = Array.isArray(data.beers) ? data.beers : (Array.isArray(data) ? data : null);
+                            if (rawBeers && rawBeers.length > 0) {
+                                const mapped = rawBeers.map(b => ({
+                                    id: b.URL_Slug || b.Beer_Name?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                                    name: b.Beer_Name || "Unnamed Beer",
+                                    style: b.Subtitle_Style || "Craft Beer",
+                                    bjcp: b.BJCP_Category || "Standard",
+                                    status: b.Status || "On Tap",
+                                    tap: b.Tap_or_Slot || "Draft",
+                                    format: b.Serving_Format || "Draft",
+                                    abv: b.ABV || "5.0%",
+                                    ibu: b.IBU || "20",
+                                    srm: b.SRM || "10 SRM",
+                                    glassware: b.Glassware || "Pint",
+                                    description: b.Commercial_Description || "",
+                                    brewLog: {
+                                        grist: b.Exact_Grist || "Proprietary Grain Bill",
+                                        hops: b.Hop_Schedule || "Standard Hop Schedule",
+                                        water: b.Water_Chemistry || "Adjusted Water Profile",
+                                        yeast: b.Yeast_Strain || "Selected Ale Strain",
+                                        vessel: b.Vessel_Log || "Primary Fermenter"
+                                    },
+                                    images: b.imagesString ? b.imagesString.split(',').map(s => s.trim()) : ["https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=800&q=80"],
+                                    googlePhotosUrl: b.googlePhotosUrl || b.photos || b.Google_Photos_URL || ""
+                                }));
+                                set
