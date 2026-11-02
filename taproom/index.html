@@ -36,7 +36,6 @@
                 srm: "14.1 SRM",
                 glassware: "Chalice",
                 description: "A brilliant fusion of ancient Belgian yeast esters and fresh, unkilned garden-harvested wet hops. Earthy, citrusy, and delightfully funky.",
-                partigyleGroup: "Wet Hop Partigyle (Gyle 1)",
                 brewLog: {
                     grist: "Extra Pale 2-Row (57.7%), Belgian Pilsner (26.4%), Munich Light (7.9%), Special B (5.4%), Crystal 60L (2.6%)",
                     hops: "Mystery Peralta Wet Hops (50/50 Wet/Dry Whole Cone, 3.5% AA) - 140g @ 60m, 140g @ 15m, 258g @ 0m",
@@ -60,7 +59,6 @@
                 srm: "9.5 SRM",
                 glassware: "Nonic",
                 description: "Traditional English session bitter brewed off the second runnings of the wet hop mash. Crisp, biscuity malt profile balanced with fresh garden hop aroma.",
-                partigyleGroup: "Wet Hop Partigyle (Gyle 2)",
                 brewLog: {
                     grist: "Second runnings from 38.1 lb master mash",
                     hops: "Homegrown Fresh Wet Hops (Whole Cone)",
@@ -84,7 +82,6 @@
                 srm: "24.0 SRM",
                 glassware: "Chalice",
                 description: "A massive, decadent English barleywine brewed from the first runnings of a 51.8 lb partigyle mash. Notes of dark caramel, fig, and warming oak.",
-                partigyleGroup: "DNOY 3-Way Partigyle (Gyle 1)",
                 brewLog: {
                     grist: "High-gravity 1st runnings from 51.8 lb master grist",
                     hops: "Traditional English Fuggles & Goldings",
@@ -108,7 +105,6 @@
                 srm: "18.0 SRM",
                 glassware: "Nonic",
                 description: "Middle runnings from our multi-partigyle mash day. Complex, malt-forward, and dangerously drinkable with earthy hop bitterness.",
-                partigyleGroup: "DNOY 3-Way Partigyle (Gyle 2)",
                 brewLog: {
                     grist: "Middle runnings from 51.8 lb master mash",
                     hops: "Medium alpha English hops",
@@ -132,7 +128,6 @@
                 srm: "16.5 SRM",
                 glassware: "Pint",
                 description: "Rich amber ale featuring smoked malt character reminiscent of a campfire on the coast. Balanced sweetness with a clean, dry finish.",
-                partigyleGroup: "DNOY 3-Way Partigyle (Gyle 3)",
                 brewLog: {
                     grist: "Amber runnings with specialty smoked malt additions",
                     hops: "Cascade and Willamette",
@@ -142,6 +137,21 @@
                 },
                 images: ["https://images.unsplash.com/photo-1555648518-80f488665094?auto=format&fit=crop&w=800&q=80"],
                 googlePhotosUrl: ""
+            }
+        ];
+
+        const FALLBACK_ABOUT_SECTIONS = [
+            {
+                header: "The Brewer's Journey",
+                detail: "Lyle \"Ale-Xander\" Farrell started brewing at 20 years old when he was studying food science with a brewing emphasis at UC Davis. He has worked for Wells & Young's in the UK, MillerCoors, and E.J. Phair and moonlighted for Heretic a few days."
+            },
+            {
+                header: "Collaborations & Community",
+                detail: "He helped found BuzzWorks, and during that time collaborated with Black Hammer Brewing, Anderson Valley, Shadow Puppet Brewing and more."
+            },
+            {
+                header: "Fermenting Life Today",
+                detail: "He's currently home brewing for fun and to stay hydrated in Oakland, California."
             }
         ];
 
@@ -180,6 +190,7 @@
 
         function App() {
             const [beers, setBeers] = useState(FALLBACK_BEERS);
+            const [aboutSections, setAboutSections] = useState(FALLBACK_ABOUT_SECTIONS);
             const [loading, setLoading] = useState(true);
             const [activeTab, setActiveTab] = useState("taproom");
             const [selectedBeer, setSelectedBeer] = useState(null);
@@ -192,8 +203,10 @@
                 fetch(GOOGLE_APPS_SCRIPT_URL)
                     .then(res => res.json())
                     .then(data => {
-                        if (Array.isArray(data) && data.length > 0) {
-                            const mapped = data.map(b => ({
+                        // Handle beers inventory
+                        if (data && Array.isArray(data.beers || data)) {
+                            const rawBeers = Array.isArray(data.beers) ? data.beers : data;
+                            const mapped = rawBeers.map(b => ({
                                 id: b.URL_Slug || b.Beer_Name?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
                                 name: b.Beer_Name || "Unnamed Beer",
                                 style: b.Subtitle_Style || "Craft Beer",
@@ -206,7 +219,6 @@
                                 srm: b.SRM || "10 SRM",
                                 glassware: b.Glassware || "Pint",
                                 description: b.Commercial_Description || "",
-                                partigyleGroup: b.Partigyle_Group || "Standard Batch",
                                 brewLog: {
                                     grist: b.Exact_Grist || "Proprietary Grain Bill",
                                     hops: b.Hop_Schedule || "Standard Hop Schedule",
@@ -219,10 +231,22 @@
                             }));
                             setBeers(mapped);
                         }
+
+                        // Handle About tab sections from sheet if available
+                        if (data && Array.isArray(data.about)) {
+                            const mappedAbout = data.about.map(a => ({
+                                header: a.Header || a.header || "",
+                                detail: a.Detail || a.detail || ""
+                            })).filter(a => a.header || a.detail);
+                            if (mappedAbout.length > 0) {
+                                setAboutSections(mappedAbout);
+                            }
+                        }
+
                         setLoading(false);
                     })
                     .catch(err => {
-                        console.warn("Using local sheet fallback data due to CORS block:", err);
+                        console.warn("Using local fallback data:", err);
                         setLoading(false);
                     });
             }, []);
@@ -281,7 +305,7 @@
                             </div>
 
                             <nav className="flex gap-2 bg-[#241e17] p-1 rounded-xl border border-stone-800">
-                                {["taproom", "cellar", "brewhouse"].map((tab) => (
+                                {["taproom", "cellar", "about"].map((tab) => (
                                     <button
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
@@ -297,19 +321,15 @@
                     </header>
 
                     <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
-                        {activeTab === "brewhouse" ? (
+                        {activeTab === "about" ? (
                             <div className="space-y-8 max-w-3xl mx-auto">
-                                <div className="bg-[#1a1511] border border-[#2d2620] rounded-2xl p-8 shadow-xl">
-                                    <h2 className="text-3xl font-serif text-amber-500 mb-4">The Brewer's Journey</h2>
-                                    <p className="text-stone-300 leading-relaxed mb-6">
-                                        Lyle "Ale-Xander" Farrell started brewing at 20 years old when he was studying food science with a brewing emphasis at UC Davis. He has worked for Wells & Young's in the UK, MillerCoors, and E.J. Phair and moonlighted for Heretic a few days.
-                                    </p>
-                                    <p className="text-stone-300 leading-relaxed mb-6">
-                                        He helped found BuzzWorks, and during that time collaborated with Black Hammer Brewing, Anderson Valley, Shadow Puppet Brewing and more.
-                                    </p>
-                                    <p className="text-stone-300 leading-relaxed">
-                                        He's currently home brewing for fun and to stay hydrated in Oakland, California.
-                                    </p>
+                                <div className="bg-[#1a1511] border border-[#2d2620] rounded-2xl p-8 shadow-xl space-y-6">
+                                    {aboutSections.map((sec, idx) => (
+                                        <div key={idx} className={idx > 0 ? "pt-6 border-t border-stone-800/80" : ""}>
+                                            <h2 className="text-2xl font-serif text-amber-500 mb-3">{sec.header}</h2>
+                                            <p className="text-stone-300 leading-relaxed text-sm md:text-base">{sec.detail}</p>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         ) : (
@@ -366,7 +386,6 @@
                                     ✕
                                 </button>
 
-                                {/* Modal Header with SRM included */}
                                 <div className="flex items-start gap-4 mb-6">
                                     <div>
                                         <span className="text-xs font-semibold uppercase bg-amber-600/20 text-amber-400 px-3 py-1 rounded-md">
@@ -377,14 +396,12 @@
                                     </div>
                                 </div>
 
-                                {/* Description Section */}
                                 {selectedBeer.description && (
                                     <div className="mb-6 bg-[#211a14] border border-stone-800/60 p-4 rounded-xl">
                                         <p className="text-stone-200 text-sm leading-relaxed">{selectedBeer.description}</p>
                                     </div>
                                 )}
 
-                                {/* Image Gallery / Google Photos */}
                                 {selectedBeer.images && selectedBeer.images.length > 0 && (
                                     <div className="mb-6 space-y-3 pt-4 border-t border-stone-800/80">
                                         <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500">Brewery Gallery</h4>
@@ -407,7 +424,6 @@
                                     </div>
                                 )}
 
-                                {/* Brewer's Technical Spec Sheet (Replaces Ingredients section) */}
                                 <div className="mb-6 bg-[#14110e] border border-[#2d2620] p-5 rounded-xl space-y-3 pt-4 border-t border-stone-800/80">
                                     <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500">Brewer's Technical Spec Sheet</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-stone-300">
@@ -418,7 +434,6 @@
                                     </div>
                                 </div>
 
-                                {/* Guest Ratings Form */}
                                 <div className="bg-[#14110e] border border-[#2d2620] p-5 rounded-xl pt-4 border-t border-stone-800/80">
                                     <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-3">Log Your Tasting Notes</h4>
                                     {successMsg && <div className="mb-3 p-3 bg-emerald-950 text-emerald-300 text-xs rounded-lg">{successMsg}</div>}
