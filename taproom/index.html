@@ -16,7 +16,6 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        /* Custom scrollbar hiding utility */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -27,7 +26,6 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- ICONS ---
         const XIcon = () => (
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         );
@@ -38,10 +36,8 @@
             <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
         );
 
-        // Google Apps Script Web App Endpoint for Live Inventory & Ratings
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsFKPAfFs7xNhw8wubgPpFMGC3x4EiXcV0iCiURcNRoAImZrkme1CBwD-5vCwlklD7/exec';
 
-        // --- HELPER COMPONENTS ---
         const srmToHex = (srm) => {
           const val = parseFloat(srm) || 12;
           if (val < 2) return '#F3F993';
@@ -92,7 +88,6 @@
           );
         };
 
-        // --- MAIN APP ---
         function App() {
           const [activeTab, setActiveTab] = useState('taproom');
           const [inventory, setInventory] = useState([]);
@@ -100,15 +95,35 @@
           const [selectedBeer, setSelectedBeer] = useState(null);
           const [activeModalImage, setActiveModalImage] = useState(0);
 
-          // Fetch live data from Google Sheet Web App
           useEffect(() => {
             fetch(SCRIPT_URL)
               .then(res => res.json())
               .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
-                  setInventory(data);
+                let rawList = [];
+                if (Array.isArray(data)) {
+                  rawList = data;
+                } else if (data && Array.isArray(data.beers)) {
+                  rawList = data.beers;
+                }
+
+                if (rawList.length > 0) {
+                  const formatted = rawList.map(beer => {
+                    // Support various column header naming conventions from Google Sheets
+                    const photoAlbumUrl = beer.googlePhotosUrl || beer.google_photos_url || beer.photosUrl || beer.photos;
+                    
+                    let imgs = [];
+                    if (beer.imagesString) {
+                      imgs = beer.imagesString.split(',').map(s => s.trim()).filter(Boolean);
+                    } else if (Array.isArray(beer.images)) {
+                      imgs = beer.images;
+                    }
+                    if (imgs.length === 0) {
+                      imgs = [`https://placehold.co/600x400/1A1613/D9822B?text=${encodeURIComponent(beer.name || 'Fermenting Life')}`];
+                    }
+                    return { ...beer, images: imgs, googlePhotosUrl: photoAlbumUrl };
+                  });
+                  setInventory(formatted);
                 } else {
-                  // Fallback data if sheet is empty
                   setInventory([
                     {
                       id: 'happy-hoppy',
@@ -130,7 +145,24 @@
                 setLoading(false);
               })
               .catch(err => {
-                console.error("Failed to load live spreadsheet inventory:", err);
+                console.error("Failed to load inventory:", err);
+                setInventory([
+                  {
+                    id: 'fallback-beer',
+                    name: 'Happy Hoppy Hopkins',
+                    style: 'Funky Wet Hop Belgian IPA',
+                    status: 'On Tap',
+                    tap: 'Tap 1',
+                    abv: '7.0%',
+                    ibu: 33,
+                    srm: 14.1,
+                    glass: 'Chalice',
+                    description: 'Brewed with homegrown wet hops from the Peralta Community Garden.',
+                    Commercial_Ingredients_Disclosure: 'Water, Malted Barley, Whole-Cone Wet Hops, Yeast.',
+                    Private_Grist: 'Extra Pale 2-Row (57.7%), Belgian Pilsner (26.4%)',
+                    images: ['https://placehold.co/600x400/1A1613/D9822B?text=Happy+Hoppy+Hopkins']
+                  }
+                ]);
                 setLoading(false);
               });
           }, []);
@@ -139,6 +171,8 @@
             setSelectedBeer(beer);
             setActiveModalImage(0);
           };
+
+          const safeInventory = Array.isArray(inventory) ? inventory : [];
 
           const renderBeerCard = (beer) => (
             <div 
@@ -166,7 +200,6 @@
 
           return (
             <div className="min-h-screen bg-[#12100E] text-[#F5F0E6] font-sans selection:bg-[#D9822B] selection:text-white pb-24">
-              {/* Header */}
               <header className="px-6 py-8 border-b border-[#2C2520] bg-[#1A1613]">
                 <div className="max-w-3xl mx-auto flex items-center space-x-4">
                   <AFLogo />
@@ -177,7 +210,6 @@
                 </div>
               </header>
               
-              {/* Navigation Tabs */}
               <div className="sticky top-0 z-30 bg-[#12100E]/90 backdrop-blur border-b border-[#2C2520]">
                 <div className="max-w-3xl mx-auto flex overflow-x-auto hide-scrollbar">
                   {['taproom', 'cellar', 'brewhouse', 'labels'].map((tab) => (
@@ -199,30 +231,26 @@
                   <div className="text-center py-12 text-[#A39686]">Loading live inventory from Google Sheet...</div>
                 )}
 
-                {/* TAPROOM TAB */}
                 {!loading && activeTab === 'taproom' && (
                   <div className="space-y-4">
-                    {inventory.filter(b => (b.status || '').toLowerCase().includes('tap')).map(renderBeerCard)}
+                    {safeInventory.filter(b => (b.status || '').toLowerCase().includes('tap')).map(renderBeerCard)}
                   </div>
                 )}
 
-                {/* CELLAR TAB */}
                 {!loading && activeTab === 'cellar' && (
                   <div className="space-y-4">
                     <div className="p-4 bg-[#1A1613] border border-[#2C2520] rounded-xl mb-6 text-sm text-[#A39686]">
                       <span className="text-[#D9822B]">The Cellar</span> holds our bottle-conditioned and vintage high-gravity releases.
                     </div>
-                    {inventory.filter(b => (b.status || '').toLowerCase().includes('cellar') || (b.status || '').toLowerCase().includes('bottle')).map(renderBeerCard)}
+                    {safeInventory.filter(b => (b.status || '').toLowerCase().includes('cellar') || (b.status || '').toLowerCase().includes('bottle')).map(renderBeerCard)}
                   </div>
                 )}
 
-                {/* BREWHOUSE TAB */}
                 {activeTab === 'brewhouse' && (
                   <div className="space-y-8 animate-in fade-in duration-500">
                     <div className="bg-[#1A1613] border border-[#2C2520] rounded-2xl overflow-hidden">
                       <div className="p-8 space-y-6">
                         <h2 className="font-serif text-3xl font-bold text-[#F5F0E6]">The Brewer</h2>
-                        
                         <div className="prose prose-invert text-[#C2B6A7] leading-relaxed space-y-4">
                           <p>
                             Lyle "Ale-Xander" Farrell began his brewing journey at age 20 while studying Food Science with a Brewing Emphasis at UC Davis.
@@ -239,11 +267,10 @@
                   </div>
                 )}
 
-                {/* LABELS TAB */}
                 {!loading && activeTab === 'labels' && (
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {inventory.map((beer, idx) => (
+                      {safeInventory.map((beer, idx) => (
                         <div key={idx} className="bg-[#1A1613] border border-[#2C2520] p-5 rounded-2xl flex flex-col items-center text-center">
                           <QrCodeIcon className="w-12 h-12 text-[#A39686] mb-3" />
                           <h3 className="font-serif font-bold text-[#F5F0E6]">{beer.name}</h3>
@@ -258,11 +285,9 @@
                 )}
               </main>
 
-              {/* BEER DETAIL MODAL */}
               {selectedBeer && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-6 animate-in fade-in">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-6">
                   <div className="w-full max-w-2xl bg-[#12100E] h-[90vh] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl flex flex-col border border-[#2C2520] overflow-hidden shadow-2xl relative">
-                    
                     <button 
                       onClick={() => setSelectedBeer(null)}
                       className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur transition-colors"
@@ -271,8 +296,6 @@
                     </button>
 
                     <div className="overflow-y-auto p-6 sm:p-8 space-y-8">
-                      
-                      {/* Header section */}
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <h2 className="font-serif text-3xl font-bold text-[#F5F0E6] mb-2">{selectedBeer.name}</h2>
@@ -284,14 +307,12 @@
                         </div>
                       </div>
 
-                      {/* Description */}
                       <div className="prose prose-invert">
                         <p className="text-lg text-[#C2B6A7] leading-relaxed">
                           {selectedBeer.description || selectedBeer.Commercial_Description}
                         </p>
                       </div>
 
-                      {/* Image Gallery */}
                       {selectedBeer.images && selectedBeer.images.length > 0 && (
                         <div className="space-y-3">
                           <div className="aspect-[3/2] w-full rounded-xl overflow-hidden border border-[#2C2520] bg-black">
@@ -314,16 +335,26 @@
                               ))}
                             </div>
                           )}
+                          {selectedBeer.googlePhotosUrl && (
+                            <div className="pt-2">
+                              <a 
+                                href={selectedBeer.googlePhotosUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-xs font-bold text-[#D9822B] hover:underline bg-[#1A1613] border border-[#2C2520] px-4 py-3 rounded-lg w-full justify-center transition-colors hover:border-[#D9822B]"
+                              >
+                                📸 View Shared Google Photos Album / Add Your Pictures
+                              </a>
+                            </div>
+                          )}
                         </div>
                       )}
 
-                      {/* Ingredients */}
                       <div className="border border-[#2C2520] rounded-xl p-5 mb-8 bg-[#12100E]">
                         <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-3">Ingredients</h4>
                         <p className="text-xs text-[#E8E1D7]">{selectedBeer.Commercial_Ingredients_Disclosure || 'Water, Malted Barley, Hops, Yeast.'}</p>
                       </div>
 
-                      {/* Public Brew Log View */}
                       <div className="border border-[#2C2520] rounded-xl p-5 mb-8 bg-[#1A1613]">
                         <h4 className="text-[10px] text-[#D9822B] font-bold uppercase tracking-wider mb-3">Brewer's Log</h4>
                         <p className="text-xs text-[#C2B6A7]">{selectedBeer.Private_Grist || 'Technical formulation locked in brewer log.'}</p>
