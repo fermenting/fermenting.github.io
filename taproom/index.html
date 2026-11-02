@@ -36,7 +36,6 @@
                 srm: "14.1 SRM",
                 glassware: "Chalice",
                 description: "A brilliant fusion of ancient Belgian yeast esters and fresh, unkilned garden-harvested wet hops. Earthy, citrusy, and delightfully funky.",
-                ingredients: "Water, Malted Barley, Whole-Cone Wet Hops, Yeast",
                 partigyleGroup: "Wet Hop Partigyle (Gyle 1)",
                 brewLog: {
                     grist: "Extra Pale 2-Row (57.7%), Belgian Pilsner (26.4%), Munich Light (7.9%), Special B (5.4%), Crystal 60L (2.6%)",
@@ -61,7 +60,6 @@
                 srm: "9.5 SRM",
                 glassware: "Nonic",
                 description: "Traditional English session bitter brewed off the second runnings of the wet hop mash. Crisp, biscuity malt profile balanced with fresh garden hop aroma.",
-                ingredients: "Water, Malted Barley, Fresh Wet Hops, Yeast",
                 partigyleGroup: "Wet Hop Partigyle (Gyle 2)",
                 brewLog: {
                     grist: "Second runnings from 38.1 lb master mash",
@@ -86,7 +84,6 @@
                 srm: "24.0 SRM",
                 glassware: "Chalice",
                 description: "A massive, decadent English barleywine brewed from the first runnings of a 51.8 lb partigyle mash. Notes of dark caramel, fig, and warming oak.",
-                ingredients: "Water, Malted Barley, Hops, Yeast, Priming Sugar",
                 partigyleGroup: "DNOY 3-Way Partigyle (Gyle 1)",
                 brewLog: {
                     grist: "High-gravity 1st runnings from 51.8 lb master grist",
@@ -111,7 +108,6 @@
                 srm: "18.0 SRM",
                 glassware: "Nonic",
                 description: "Middle runnings from our multi-partigyle mash day. Complex, malt-forward, and dangerously drinkable with earthy hop bitterness.",
-                ingredients: "Water, Malted Barley, Hops, Yeast",
                 partigyleGroup: "DNOY 3-Way Partigyle (Gyle 2)",
                 brewLog: {
                     grist: "Middle runnings from 51.8 lb master mash",
@@ -136,7 +132,6 @@
                 srm: "16.5 SRM",
                 glassware: "Pint",
                 description: "Rich amber ale featuring smoked malt character reminiscent of a campfire on the coast. Balanced sweetness with a clean, dry finish.",
-                ingredients: "Water, Malted Barley (incl. Smoked Malt), Hops, Yeast",
                 partigyleGroup: "DNOY 3-Way Partigyle (Gyle 3)",
                 brewLog: {
                     grist: "Amber runnings with specialty smoked malt additions",
@@ -211,7 +206,6 @@
                                 srm: b.SRM || "10 SRM",
                                 glassware: b.Glassware || "Pint",
                                 description: b.Commercial_Description || "",
-                                ingredients: b.Commercial_Ingredients_Disclosure || "Water, Malted Barley, Hops, Yeast",
                                 partigyleGroup: b.Partigyle_Group || "Standard Batch",
                                 brewLog: {
                                     grist: b.Exact_Grist || "Proprietary Grain Bill",
@@ -355,34 +349,44 @@
                         )}
                     </main>
 
+                    {/* Beer Detail Modal with Backdrop Click-to-Close */}
                     {selectedBeer && (
-                        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-                            <div className="bg-[#191511] border border-[#2d2620] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 relative shadow-2xl">
+                        <div 
+                            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+                            onClick={() => setSelectedBeer(null)}
+                        >
+                            <div 
+                                className="bg-[#191511] border border-[#2d2620] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 relative shadow-2xl"
+                                onClick={e => e.stopPropagation()}
+                            >
                                 <button
                                     onClick={() => setSelectedBeer(null)}
-                                    className="absolute top-6 right-6 text-stone-400 hover:text-white bg-stone-800/80 w-8 h-8 rounded-full flex items-center justify-center text-lg"
+                                    className="absolute top-6 right-6 text-stone-400 hover:text-white bg-stone-800/80 w-8 h-8 rounded-full flex items-center justify-center text-lg transition"
                                 >
                                     ✕
                                 </button>
 
+                                {/* Modal Header with SRM included */}
                                 <div className="flex items-start gap-4 mb-6">
                                     <div>
                                         <span className="text-xs font-semibold uppercase bg-amber-600/20 text-amber-400 px-3 py-1 rounded-md">
-                                            {selectedBeer.tap} • {selectedBeer.abv} ABV • {selectedBeer.ibu} IBU
+                                            {selectedBeer.tap} • {selectedBeer.abv} ABV • {selectedBeer.ibu} IBU • {selectedBeer.srm}
                                         </span>
                                         <h2 className="text-3xl font-serif font-bold text-white mt-2">{selectedBeer.name}</h2>
-                                        <p className="text-stone-400 text-sm">{selectedBeer.style} ({selectedBeer.bjcp})</p>
+                                        <p className="text-stone-400 text-sm">{selectedBeer.style} &bull; BJCP: {selectedBeer.bjcp}</p>
                                     </div>
                                 </div>
 
+                                {/* Description Section */}
                                 {selectedBeer.description && (
                                     <div className="mb-6 bg-[#211a14] border border-stone-800/60 p-4 rounded-xl">
                                         <p className="text-stone-200 text-sm leading-relaxed">{selectedBeer.description}</p>
                                     </div>
                                 )}
 
+                                {/* Image Gallery / Google Photos */}
                                 {selectedBeer.images && selectedBeer.images.length > 0 && (
-                                    <div className="mb-6 space-y-3">
+                                    <div className="mb-6 space-y-3 pt-4 border-t border-stone-800/80">
                                         <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500">Brewery Gallery</h4>
                                         <div className="rounded-xl overflow-hidden h-64 border border-stone-800 bg-black/40">
                                             <img src={selectedBeer.images[0]} alt={selectedBeer.name} className="w-full h-full object-cover" />
@@ -396,14 +400,15 @@
                                             href={selectedBeer.googlePhotosUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="block w-full py-3 bg-stone-800 hover:bg-stone-700 text-amber-400 text-center rounded-xl font-semibold text-sm border border-stone-700 transition flex items-center justify-center gap-2"
+                                            className="block w-full py-3 bg-stone-800 hover:bg-stone-700 text-amber-400 text-center rounded-xl font-semibold text-sm border border-stone-700 transition flex items-center justify-center gap-2 shadow"
                                         >
                                             📸 View Shared Google Photos Album / Add Your Pictures
                                         </a>
                                     </div>
                                 )}
 
-                                <div className="mb-6 bg-[#14110e] border border-[#2d2620] p-5 rounded-xl space-y-3">
+                                {/* Brewer's Technical Spec Sheet (Replaces Ingredients section) */}
+                                <div className="mb-6 bg-[#14110e] border border-[#2d2620] p-5 rounded-xl space-y-3 pt-4 border-t border-stone-800/80">
                                     <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500">Brewer's Technical Spec Sheet</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-stone-300">
                                         <div><strong className="text-stone-400">Grist:</strong> {selectedBeer.brewLog.grist}</div>
@@ -413,12 +418,8 @@
                                     </div>
                                 </div>
 
-                                <div className="mb-6 pt-4 border-t border-stone-800">
-                                    <h4 className="text-xs font-bold uppercase tracking-widest text-stone-400 mb-1">Ingredients</h4>
-                                    <p className="text-sm text-stone-300">{selectedBeer.ingredients}</p>
-                                </div>
-
-                                <div className="bg-[#14110e] border border-[#2d2620] p-5 rounded-xl">
+                                {/* Guest Ratings Form */}
+                                <div className="bg-[#14110e] border border-[#2d2620] p-5 rounded-xl pt-4 border-t border-stone-800/80">
                                     <h4 className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-3">Log Your Tasting Notes</h4>
                                     {successMsg && <div className="mb-3 p-3 bg-emerald-950 text-emerald-300 text-xs rounded-lg">{successMsg}</div>}
                                     <form onSubmit={handleRatingSubmit} className="space-y-3">
